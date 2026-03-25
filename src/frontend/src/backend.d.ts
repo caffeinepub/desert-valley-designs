@@ -7,53 +7,70 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface CartItem {
-    shirtType: string;
-    shirtColor: string;
-    vinylColor: string;
-    sizes: Array<[string, bigint]>;
-    category: string;
+export class ExternalBlob {
+    getBytes(): Promise<Uint8Array<ArrayBuffer>>;
+    getDirectURL(): string;
+    static fromURL(url: string): ExternalBlob;
+    static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
+    withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
 }
-export interface NewOrder {
-    name: string;
-    email: string;
-    phone: string;
-    cartItems: Array<CartItem>;
-    notes: string;
+export interface Video {
+    id: bigint;
+    url: string;
+    title: string;
+    thumbnail: ExternalBlob;
+    releasedAt: bigint;
+    price: bigint;
 }
 export interface OrderV2 {
     id: bigint;
     status: string;
     name: string;
+    submittedAt: bigint;
     email: string;
-    phone: string;
     cartItems: Array<CartItem>;
     notes: string;
-    submittedAt: bigint;
-}
-export interface NewLogoRequest {
-    name: string;
-    email: string;
     phone: string;
-    description: string;
-    imageUrl: string;
 }
 export interface LogoRequest {
     id: bigint;
+    status: string;
+    name: string;
+    submittedAt: bigint;
+    description: string;
+    email: string;
+    imageUrl: string;
+    phone: string;
+}
+export interface CartItem {
+    shirtColor: string;
+    vinylColor: string;
+    sizes: Array<[string, bigint]>;
+    shirtType: string;
+    category: string;
+}
+export interface NewOrder {
     name: string;
     email: string;
+    cartItems: Array<CartItem>;
+    notes: string;
     phone: string;
+}
+export interface NewLogoRequest {
+    name: string;
     description: string;
+    email: string;
     imageUrl: string;
-    status: string;
-    submittedAt: bigint;
+    phone: string;
 }
 export interface backendInterface {
+    addVideo(title: string, url: string, thumbnail: ExternalBlob, price: bigint): Promise<bigint>;
     adminLogin(username: string, password: string): Promise<boolean>;
-    getOrders(): Promise<Array<OrderV2>>;
-    submitOrder(form: NewOrder): Promise<bigint>;
-    updateOrderStatus(id: bigint, status: string): Promise<boolean>;
-    submitLogoRequest(form: NewLogoRequest): Promise<bigint>;
     getLogoRequests(): Promise<Array<LogoRequest>>;
+    getOrders(): Promise<Array<OrderV2>>;
+    getVideoLibrary(): Promise<Array<Video>>;
+    submitLogoRequest(form: NewLogoRequest): Promise<bigint>;
+    submitOrder(form: NewOrder): Promise<bigint>;
     updateLogoRequestStatus(id: bigint, status: string): Promise<boolean>;
+    updateOrderStatus(id: bigint, status: string): Promise<boolean>;
 }

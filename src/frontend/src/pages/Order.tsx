@@ -762,10 +762,10 @@ export default function Order() {
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-lg p-0 flex flex-col"
+          className="w-full sm:max-w-lg p-0 flex flex-col h-full"
           data-ocid="order.sheet"
         >
-          <SheetHeader className="px-6 py-5 border-b-4 border-[#FF5500] bg-[#111111]">
+          <SheetHeader className="px-6 py-5 border-b-4 border-[#FF5500] bg-[#111111] shrink-0">
             <div className="flex items-center justify-between">
               <SheetTitle className="font-['Bebas_Neue'] text-3xl text-white tracking-wide flex items-center gap-2">
                 <ShoppingCart size={22} className="text-[#FF5500]" />
@@ -779,7 +779,7 @@ export default function Order() {
             </div>
           </SheetHeader>
 
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 min-h-0 overflow-y-auto">
             <div className="px-6 py-4">
               <AnimatePresence>
                 {orderId !== null ? (
@@ -1059,31 +1059,6 @@ export default function Order() {
                             </div>
                           </div>
                         </div>
-
-                        {orderError && (
-                          <p className="text-sm font-bold text-red-600 text-center">
-                            {orderError}
-                          </p>
-                        )}
-
-                        <Button
-                          onClick={handlePlaceOrder}
-                          disabled={submitting || isFetching}
-                          className="w-full font-black uppercase tracking-wider py-4 text-white text-sm hover:bg-[#FFD200] hover:text-[#111] transition-colors disabled:opacity-60 bg-[#FF5500] border-4 border-[#111] rounded-none h-auto"
-                          data-ocid="order.submit_button"
-                        >
-                          {submitting ? (
-                            <>
-                              <Loader2
-                                size={18}
-                                className="animate-spin mr-2"
-                              />{" "}
-                              Placing Order…
-                            </>
-                          ) : (
-                            "Place Order"
-                          )}
-                        </Button>
                       </div>
                     )}
                   </>
@@ -1091,6 +1066,31 @@ export default function Order() {
               </AnimatePresence>
             </div>
           </ScrollArea>
+
+          {cart.length > 0 && orderId === null && (
+            <div className="border-t-4 border-[#111] bg-white px-6 py-4 space-y-2 shrink-0">
+              {orderError && (
+                <p className="text-sm font-bold text-red-600 text-center">
+                  {orderError}
+                </p>
+              )}
+              <Button
+                onClick={handlePlaceOrder}
+                disabled={submitting || isFetching}
+                className="w-full font-black uppercase tracking-wider py-4 text-white text-sm hover:bg-[#FFD200] hover:text-[#111] transition-colors disabled:opacity-60 bg-[#FF5500] border-4 border-[#111] rounded-none h-auto"
+                data-ocid="order.submit_button"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin mr-2" /> Placing
+                    Order…
+                  </>
+                ) : (
+                  "Place Order"
+                )}
+              </Button>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
     </div>

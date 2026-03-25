@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Flame, ImagePlus, Loader2, X } from "lucide-react";
+import { CheckCircle2, Flame, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 import { useActor } from "../hooks/useActor";
@@ -16,31 +16,9 @@ export default function LogoRequest() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [previewSrc, setPreviewSrc] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string;
-      setImageUrl(result);
-      setPreviewSrc(result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const clearImage = () => {
-    setImageUrl("");
-    setPreviewSrc("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,12 +33,12 @@ export default function LogoRequest() {
     }
     setSubmitting(true);
     try {
-      await (actor as any).submitLogoRequest({
+      await actor.submitLogoRequest({
         name,
         email,
         phone,
         description,
-        imageUrl,
+        imageUrl: "",
       });
       setSubmitted(true);
     } catch (err) {
@@ -109,8 +87,7 @@ export default function LogoRequest() {
             transition={{ delay: 0.2 }}
             className="text-white/70 text-sm max-w-xl mx-auto font-medium"
           >
-            Tell us your vision and we'll bring it to life. Upload a reference
-            image if you have one.
+            Tell us your vision and we'll bring it to life.
           </motion.p>
         </div>
       </div>
@@ -139,7 +116,6 @@ export default function LogoRequest() {
                   setEmail("");
                   setPhone("");
                   setDescription("");
-                  clearImage();
                 }}
                 className="font-black uppercase tracking-wider px-8 py-3 text-white text-sm bg-[#FF5500] border-4 border-[#111] rounded-none h-auto hover:bg-[#FFD200] hover:text-[#111] transition-colors"
                 data-ocid="logo_request.secondary_button"
@@ -234,62 +210,6 @@ export default function LogoRequest() {
                   required
                   className="border-2 border-[#111] rounded-none resize-y focus-visible:ring-[#FF5500]"
                   data-ocid="logo_request.textarea"
-                />
-              </div>
-
-              {/* Image Upload */}
-              <div>
-                <Label className="font-black text-xs uppercase tracking-widest text-[#111] mb-1 block">
-                  Reference Image{" "}
-                  <span className="text-[#888] font-medium normal-case">
-                    ( optional )
-                  </span>
-                </Label>
-                <p className="text-xs text-[#888] mb-3 font-medium">
-                  Upload an image that shows the style, colors, or design you
-                  have in mind.
-                </p>
-
-                {previewSrc ? (
-                  <div className="relative inline-block">
-                    <img
-                      src={previewSrc}
-                      alt="Reference preview"
-                      className="max-h-48 border-4 border-[#111] object-contain"
-                    />
-                    <button
-                      type="button"
-                      onClick={clearImage}
-                      className="absolute top-1 right-1 bg-[#FF5500] text-white p-1 border-2 border-[#111] hover:bg-red-600 transition-colors"
-                      data-ocid="logo_request.close_button"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full border-4 border-dashed border-[#111] bg-[#FAFAF5] py-10 flex flex-col items-center gap-2 hover:bg-[#FFF8F0] hover:border-[#FF5500] transition-colors"
-                    data-ocid="logo_request.upload_button"
-                  >
-                    <ImagePlus size={32} className="text-[#FF5500]" />
-                    <span className="font-black text-xs uppercase tracking-widest text-[#111]">
-                      Click to upload image
-                    </span>
-                    <span className="text-xs text-[#888]">
-                      JPG, PNG, GIF, WEBP
-                    </span>
-                  </button>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  data-ocid="logo_request.dropzone"
                 />
               </div>
 

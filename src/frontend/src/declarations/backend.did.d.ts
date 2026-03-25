@@ -11,36 +11,90 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export interface CartItem {
-  'shirtType' : string,
   'shirtColor' : string,
   'vinylColor' : string,
   'sizes' : Array<[string, bigint]>,
+  'shirtType' : string,
   'category' : string,
+}
+export type ExternalBlob = Uint8Array;
+export interface LogoRequest {
+  'id' : bigint,
+  'status' : string,
+  'name' : string,
+  'submittedAt' : bigint,
+  'description' : string,
+  'email' : string,
+  'imageUrl' : string,
+  'phone' : string,
+}
+export interface NewLogoRequest {
+  'name' : string,
+  'description' : string,
+  'email' : string,
+  'imageUrl' : string,
+  'phone' : string,
 }
 export interface NewOrder {
   'name' : string,
   'email' : string,
-  'phone' : string,
   'cartItems' : Array<CartItem>,
   'notes' : string,
+  'phone' : string,
 }
-export interface Order {
+export interface OrderV2 {
   'id' : bigint,
   'status' : string,
   'name' : string,
   'submittedAt' : bigint,
   'email' : string,
-  'phone' : string,
   'cartItems' : Array<CartItem>,
   'notes' : string,
+  'phone' : string,
+}
+export interface Video {
+  'id' : bigint,
+  'url' : string,
+  'title' : string,
+  'thumbnail' : ExternalBlob,
+  'releasedAt' : bigint,
+  'price' : bigint,
+}
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
 }
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  'addVideo' : ActorMethod<[string, string, ExternalBlob, bigint], bigint>,
   'adminLogin' : ActorMethod<[string, string], boolean>,
-  'getOrders' : ActorMethod<[], Array<Order>>,
-  /**
-   * / Canister methods *
-   */
+  'getLogoRequests' : ActorMethod<[], Array<LogoRequest>>,
+  'getOrders' : ActorMethod<[], Array<OrderV2>>,
+  'getVideoLibrary' : ActorMethod<[], Array<Video>>,
+  'submitLogoRequest' : ActorMethod<[NewLogoRequest], bigint>,
   'submitOrder' : ActorMethod<[NewOrder], bigint>,
+  'updateLogoRequestStatus' : ActorMethod<[bigint, string], boolean>,
   'updateOrderStatus' : ActorMethod<[bigint, string], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;

@@ -106,7 +106,7 @@ export default function AdminDashboard() {
     if (!actor) return;
     setOrdersLoading(true);
     try {
-      const data = (await (actor as any).getOrders()) as Order[];
+      const data = await actor.getOrders();
       setOrders(
         [...data].sort((a, b) => Number(b.submittedAt - a.submittedAt)),
       );
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
     if (!actor) return;
     setLogoLoading(true);
     try {
-      const data = (await (actor as any).getLogoRequests()) as LogoRequest[];
+      const data = await actor.getLogoRequests();
       setLogoRequests(
         [...data].sort((a, b) => Number(b.submittedAt - a.submittedAt)),
       );
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
     if (!actor) return;
     setUpdatingLogo(id);
     try {
-      await (actor as any).updateLogoRequestStatus(id, status);
+      await actor.updateLogoRequestStatus(id, status);
       setLogoRequests((prev) =>
         prev.map((r) => (r.id === id ? { ...r, status } : r)),
       );
