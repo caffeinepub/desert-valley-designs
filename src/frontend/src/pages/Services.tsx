@@ -6,8 +6,8 @@ import Nav from "../components/Nav";
 
 const apparel = [
   "Custom team uniforms",
-  "Screen printed t-shirts",
-  "Embroidered polos & hats",
+  "Vinyl printed t-shirts",
+  "Vinyl hats",
   "Sports & athletic wear",
   "Work & company uniforms",
   "Event & promotional shirts",
@@ -146,9 +146,7 @@ export default function Services() {
                 Custom Apparel
               </h2>
               <p className="text-base leading-relaxed mb-8 text-[#444] font-medium">
-                Whether you need team uniforms, event shirts, or branded company
-                wear — we handle every detail. Screen printing, vinyl transfers,
-                and embroidery on premium garments.
+                We handle every detail. Vinyl transfers on premium garments.
               </p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 {apparel.map((item) => (
@@ -228,6 +226,38 @@ export default function Services() {
                 transition={{ delay: idx * 0.1 }}
                 className="border-4 border-[#FF5500] bg-white overflow-hidden"
               >
+                {idx === 0 && (
+                  <div className="h-48 bg-white flex gap-1 p-2">
+                    <img
+                      src="/assets/uploads/img_2613-019d22f8-ba06-7298-ae47-67366c206568-1.jpeg"
+                      alt="Construction Short Sleeve"
+                      className="flex-1 object-contain"
+                    />
+                    <img
+                      src="/assets/uploads/img_2614-019d22f8-ba0d-744e-98ef-b4fc300a5cc0-2.jpeg"
+                      alt="Construction Long Sleeve"
+                      className="flex-1 object-contain"
+                    />
+                  </div>
+                )}
+                {idx === 1 && (
+                  <div className="h-48 bg-white flex items-center justify-center p-2">
+                    <img
+                      src="/assets/uploads/img_2616-019d22f8-ba0d-768d-acc4-2e8c48e83708-3.jpeg"
+                      alt="Softstyle T-Shirt"
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                )}
+                {idx === 2 && (
+                  <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
+                    <img
+                      src="/assets/uploads/img_2615-019d2300-4efe-77a6-91a2-713b702886b1-1.jpeg"
+                      alt="Polo Shirt"
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                )}
                 <div className="px-6 py-5 bg-[#FF5500]">
                   <h3 className="font-['Bebas_Neue'] text-3xl text-white tracking-wide leading-tight">
                     {category.title}

@@ -90,7 +90,7 @@ const PRODUCTS: ProductDef[] = [
     id: "construction-tee",
     name: "Construction T-Shirt",
     description:
-      "Heavy-duty 100% cotton tee built for job-site conditions. Rugged, breathable, and ready for anything.",
+      "Heavy-duty 50/50 cotton-polyester tee built for job-site conditions. Rugged, breathable, and ready for anything.",
     category: "work",
     shirtType: "Construction T-Shirt",
     hasSleeveOption: true,
