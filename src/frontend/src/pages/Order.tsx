@@ -44,7 +44,7 @@ const SHIRT_COLORS = [
   { name: "Navy", hex: "#003087" },
   { name: "Charcoal", hex: "#36454F" },
   { name: "Dark Green", hex: "#013220" },
-  { name: "Safety Green", hex: "#4DB848" },
+  { name: "Safety Green", hex: "#edff00" },
   { name: "Safety Orange", hex: "#FF6700" },
   { name: "Red", hex: "#CC0000" },
   { name: "Maroon", hex: "#800000" },
@@ -78,6 +78,7 @@ interface ProductDef {
   category: "work" | "everyday";
   shirtType: string;
   hasSleeveOption?: boolean;
+  hasBYOS?: boolean;
   pricing: {
     min: number;
     max: number;
@@ -95,13 +96,13 @@ const PRODUCTS: ProductDef[] = [
     shirtType: "Construction T-Shirt",
     hasSleeveOption: true,
     pricing: {
-      min: 18,
-      max: 25,
+      min: 19,
+      max: 27,
       tiers: [
-        { label: "1–15 shirts", price: 25 },
-        { label: "16–30 shirts", price: 22 },
-        { label: "31–50 shirts", price: 20 },
-        { label: "50+ shirts", price: 18 },
+        { label: "1–15 shirts", price: 27 },
+        { label: "16–30 shirts", price: 23 },
+        { label: "31–50 shirts", price: 21 },
+        { label: "51+ shirts", price: 19 },
       ],
     },
   },
@@ -113,13 +114,13 @@ const PRODUCTS: ProductDef[] = [
     category: "work",
     shirtType: "Polo",
     pricing: {
-      min: 28,
-      max: 35,
+      min: 23,
+      max: 31,
       tiers: [
-        { label: "1–15 polos", price: 35 },
-        { label: "16–30 polos", price: 32 },
-        { label: "31–50 polos", price: 30 },
-        { label: "50+ polos", price: 28 },
+        { label: "1–15 polos", price: 31 },
+        { label: "16–30 polos", price: 27 },
+        { label: "31–50 polos", price: 25 },
+        { label: "51+ polos", price: 23 },
       ],
     },
   },
@@ -135,9 +136,28 @@ const PRODUCTS: ProductDef[] = [
       max: 28,
       tiers: [
         { label: "1–15 shirts", price: 28 },
-        { label: "16–30 shirts", price: 25 },
+        { label: "16–30 shirts", price: 24 },
         { label: "31–50 shirts", price: 22 },
-        { label: "50+ shirts", price: 20 },
+        { label: "51+ shirts", price: 20 },
+      ],
+    },
+  },
+  {
+    id: "byos",
+    name: "Bring Your Own Shirt",
+    description:
+      "Already have a shirt you love? Bring it in and we'll add custom vinyl to it. You bring the shirt, we bring the heat.",
+    category: "everyday",
+    shirtType: "Customer's Own Shirt",
+    hasBYOS: true,
+    pricing: {
+      min: 15,
+      max: 22,
+      tiers: [
+        { label: "1–15 shirts", price: 22 },
+        { label: "16–30 shirts", price: 19 },
+        { label: "31–50 shirts", price: 17 },
+        { label: "51+ shirts", price: 15 },
       ],
     },
   },
@@ -153,6 +173,7 @@ interface CartItem {
   vinylColor: string;
   sizes: Record<string, number>;
   sleeveType?: SleeveType;
+  isBYOS?: boolean;
 }
 
 interface CustomerInfo {
@@ -168,7 +189,7 @@ function getPricePerUnit(shirtType: string, totalQty: number): number {
   const p = PRODUCTS.find((pr) => pr.shirtType === shirtType);
   if (!p) return 25;
   const tiers = p.pricing.tiers;
-  if (totalQty >= 50) return tiers[3].price;
+  if (totalQty >= 51) return tiers[3].price;
   if (totalQty >= 31) return tiers[2].price;
   if (totalQty >= 16) return tiers[1].price;
   return tiers[0].price;
@@ -204,6 +225,8 @@ function SizeRow({
   values: Record<string, number>;
   onChange: (size: string, qty: number) => void;
 }) {
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
+
   return (
     <div className="mb-4">
       <p className="font-black uppercase text-xs tracking-widest mb-2 text-[#FF5500]">
@@ -212,6 +235,8 @@ function SizeRow({
       <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
         {sizes.map((size) => {
           const qty = values[size] ?? 0;
+          const inputDisplay =
+            inputValues[size] !== undefined ? inputValues[size] : String(qty);
           return (
             <div key={size} className="flex flex-col items-center gap-1">
               <span className="text-xs font-bold uppercase text-[#111]">
@@ -220,20 +245,55 @@ function SizeRow({
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => onChange(size, Math.max(0, qty - 1))}
+                  onClick={() => {
+                    const next = Math.max(0, qty - 1);
+                    setInputValues((prev) => ({
+                      ...prev,
+                      [size]: String(next),
+                    }));
+                    onChange(size, next);
+                  }}
                   className="w-6 h-6 border-2 border-[#111] flex items-center justify-center hover:bg-gray-100 transition-colors"
                 >
                   <Minus size={10} />
                 </button>
-                <span
-                  className="w-6 text-center text-sm font-black"
+                <input
+                  type="number"
+                  min={0}
+                  value={inputDisplay}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    setInputValues((prev) => ({ ...prev, [size]: raw }));
+                    const parsed = Number.parseInt(raw, 10);
+                    onChange(
+                      size,
+                      Number.isNaN(parsed) ? 0 : Math.max(0, parsed),
+                    );
+                  }}
+                  onBlur={(e) => {
+                    const parsed = Number.parseInt(e.target.value, 10);
+                    const clamped = Number.isNaN(parsed)
+                      ? 0
+                      : Math.max(0, parsed);
+                    setInputValues((prev) => ({
+                      ...prev,
+                      [size]: String(clamped),
+                    }));
+                    onChange(size, clamped);
+                  }}
+                  className="w-10 h-6 text-center text-sm font-black border-2 border-[#111] bg-white focus:outline-none focus:border-[#FF5500] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   style={{ color: qty > 0 ? "#FF5500" : "#888" }}
-                >
-                  {qty}
-                </span>
+                />
                 <button
                   type="button"
-                  onClick={() => onChange(size, qty + 1)}
+                  onClick={() => {
+                    const next = qty + 1;
+                    setInputValues((prev) => ({
+                      ...prev,
+                      [size]: String(next),
+                    }));
+                    onChange(size, next);
+                  }}
                   className="w-6 h-6 border-2 flex items-center justify-center hover:bg-gray-100 transition-colors"
                   style={{ borderColor: "#FF5500" }}
                 >
@@ -329,28 +389,49 @@ function ProductCard({
                 Short &amp; Long Sleeve
               </span>
             )}
+            {product.hasBYOS && (
+              <span className="text-xs font-black uppercase tracking-wider px-2 py-0.5 whitespace-nowrap border-2 border-[#111] bg-[#111] text-[#FFD200]">
+                Your Shirt
+              </span>
+            )}
           </div>
         </div>
         <p className="text-sm mb-4 text-[#555] font-medium">
           {product.description}
         </p>
         <div className="mb-5">
-          <p className="font-black uppercase text-xs tracking-wider mb-2 text-[#111]">
-            Pricing Tiers
-          </p>
-          <div className="grid grid-cols-2 gap-1">
-            {product.pricing.tiers.map((tier) => (
-              <div
-                key={tier.label}
-                className="flex items-center justify-between bg-gray-50 border border-gray-200 px-3 py-1.5"
-              >
-                <span className="text-xs text-[#555]">{tier.label}</span>
-                <span className="text-xs font-black text-[#FF5500]">
-                  ${tier.price}
-                </span>
+          {product.hasBYOS ? (
+            <div className="flex items-center gap-3 bg-[#FFF8F0] border-2 border-[#FF5500] px-4 py-3">
+              <span className="font-['Bebas_Neue'] text-3xl text-[#FF5500] leading-none">
+                $10
+              </span>
+              <div>
+                <p className="font-black text-sm text-[#111] uppercase tracking-wider">
+                  Per Shirt
+                </p>
+                <p className="text-xs text-[#888]">Flat rate — any quantity</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <>
+              <p className="font-black uppercase text-xs tracking-wider mb-2 text-[#111]">
+                Pricing Tiers
+              </p>
+              <div className="grid grid-cols-2 gap-1">
+                {product.pricing.tiers.map((tier) => (
+                  <div
+                    key={tier.label}
+                    className="flex items-center justify-between bg-gray-50 border border-gray-200 px-3 py-1.5"
+                  >
+                    <span className="text-xs text-[#555]">{tier.label}</span>
+                    <span className="text-xs font-black text-[#FF5500]">
+                      ${tier.price}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
         <div className="mt-auto">
           <button
@@ -435,10 +516,11 @@ export default function Order() {
       id: `${customizing.id}-${Date.now()}`,
       shirtType: customizing.shirtType,
       category: customizing.category,
-      shirtColor: modalShirtColor,
+      shirtColor: customizing.hasBYOS ? "N/A" : modalShirtColor,
       vinylColor: modalVinylColor,
       sizes: { ...modalSizes },
       sleeveType: customizing.hasSleeveOption ? modalSleeveType : undefined,
+      isBYOS: customizing.hasBYOS,
     };
     setCart((prev) => [...prev, newItem]);
     setCustomizing(null);
@@ -463,18 +545,18 @@ export default function Order() {
       return;
     }
     if (!actor) {
-      setOrderError("Connecting to backend, please wait…");
+      setOrderError("Connecting to backend, please wait\u2026");
       return;
     }
 
     const cartSummary = cart
       .map(
         (item, i) =>
-          `Item ${i + 1}: ${item.shirtType}${item.sleeveType ? ` (${item.sleeveType})` : ""} | Shirt: ${item.shirtColor} | Vinyl: ${item.vinylColor} | ${Object.entries(
-            item.sizes,
-          )
+          `Item ${i + 1}: ${item.shirtType}${item.sleeveType ? ` (${item.sleeveType})` : ""}${
+            item.isBYOS ? "" : ` | Shirt: ${item.shirtColor}`
+          } | Vinyl: ${item.vinylColor} | ${Object.entries(item.sizes)
             .filter(([, q]) => q > 0)
-            .map(([s, q]) => `${s}×${q}`)
+            .map(([s, q]) => `${s}\u00d7${q}`)
             .join(", ")}`,
       )
       .join(" || ");
@@ -666,19 +748,38 @@ export default function Order() {
                 </>
               )}
 
-              {/* Shirt Color */}
-              <div>
-                <p className="font-black uppercase text-xs tracking-widest mb-2 text-[#111]">
-                  Shirt Color
-                </p>
-                <ColorPicker
-                  colors={SHIRT_COLORS}
-                  selected={modalShirtColor}
-                  onSelect={setModalShirtColor}
-                />
-              </div>
+              {/* Shirt Color — skip for BYOS */}
+              {!customizing.hasBYOS && (
+                <>
+                  <div>
+                    <p className="font-black uppercase text-xs tracking-widest mb-2 text-[#111]">
+                      Shirt Color
+                    </p>
+                    <ColorPicker
+                      colors={SHIRT_COLORS}
+                      selected={modalShirtColor}
+                      onSelect={setModalShirtColor}
+                    />
+                  </div>
+                  <Separator />
+                </>
+              )}
 
-              <Separator />
+              {/* BYOS notice */}
+              {customizing.hasBYOS && (
+                <div className="bg-[#FFF8F0] border-2 border-[#FFD200] px-4 py-3 flex items-start gap-3">
+                  <span className="text-xl mt-0.5">👕</span>
+                  <div>
+                    <p className="font-black text-sm text-[#111] uppercase tracking-wider">
+                      Bring Your Own Shirt
+                    </p>
+                    <p className="text-xs text-[#555] mt-0.5">
+                      Drop off your shirt at our shop and we'll apply the vinyl
+                      for you. $10 flat per shirt.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Vinyl Color */}
               <div>
@@ -721,7 +822,7 @@ export default function Order() {
                 {modalTotalQty > 0 && (
                   <div className="mt-3 p-3 bg-[#FFF8F0] border-2 border-[#FF5500]">
                     <p className="text-sm font-bold text-[#FF5500]">
-                      Total: {modalTotalQty} units @ $
+                      Total: {modalTotalQty} shirts @ $
                       {getPricePerUnit(customizing.shirtType, modalTotalQty)}/ea
                       {" = "}
                       <span className="font-black">
@@ -882,26 +983,36 @@ export default function Order() {
                                         {item.sleeveType}
                                       </span>
                                     )}
+                                    {item.isBYOS && (
+                                      <span className="text-xs font-black uppercase tracking-wider px-2 py-0.5 bg-[#111] text-[#FFD200]">
+                                        Your Shirt
+                                      </span>
+                                    )}
                                   </div>
                                   <p className="font-black text-sm text-[#111]">
                                     {item.shirtType}
                                   </p>
                                   <div className="flex items-center gap-3 mt-1">
-                                    <div className="flex items-center gap-1">
-                                      <span
-                                        className="w-3 h-3 inline-block border border-gray-200"
-                                        style={{
-                                          backgroundColor:
-                                            SHIRT_COLORS.find(
-                                              (c) => c.name === item.shirtColor,
-                                            )?.hex ?? "#ccc",
-                                        }}
-                                      />
-                                      <span className="text-xs text-[#555]">
-                                        {item.shirtColor}
-                                      </span>
-                                    </div>
-                                    <span className="text-gray-300">|</span>
+                                    {!item.isBYOS && (
+                                      <>
+                                        <div className="flex items-center gap-1">
+                                          <span
+                                            className="w-3 h-3 inline-block border border-gray-200"
+                                            style={{
+                                              backgroundColor:
+                                                SHIRT_COLORS.find(
+                                                  (c) =>
+                                                    c.name === item.shirtColor,
+                                                )?.hex ?? "#ccc",
+                                            }}
+                                          />
+                                          <span className="text-xs text-[#555]">
+                                            {item.shirtColor}
+                                          </span>
+                                        </div>
+                                        <span className="text-gray-300">|</span>
+                                      </>
+                                    )}
                                     <div className="flex items-center gap-1">
                                       <span
                                         className="w-3 h-3 inline-block border border-gray-200"
@@ -925,7 +1036,7 @@ export default function Order() {
                                           key={size}
                                           className="text-xs px-2 py-0.5 bg-white border-2 border-[#111] font-bold text-[#111]"
                                         >
-                                          {size.replace("Kids-", "K-")}×{q}
+                                          {size.replace("Kids-", "K-")}\u00d7{q}
                                         </span>
                                       ))}
                                   </div>
@@ -1051,7 +1162,7 @@ export default function Order() {
                                     notes: e.target.value,
                                   }))
                                 }
-                                placeholder="Design details, logo info, special requests…"
+                                placeholder="Design details, logo info, special requests\u2026"
                                 rows={3}
                                 className="mt-1 border-2 border-[#111] rounded-none"
                                 data-ocid="order.textarea"
@@ -1083,7 +1194,7 @@ export default function Order() {
                 {submitting ? (
                   <>
                     <Loader2 size={18} className="animate-spin mr-2" /> Placing
-                    Order…
+                    Order\u2026
                   </>
                 ) : (
                   "Place Order"

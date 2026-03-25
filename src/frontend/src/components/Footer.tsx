@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Flame, MapPin } from "lucide-react";
+import { Flame, Mail, MapPin } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -21,6 +21,15 @@ export default function Footer() {
             <div className="flex items-start gap-2 text-white/60 mb-2">
               <MapPin size={14} className="mt-0.5 shrink-0 text-[#FF5500]" />
               <span className="text-sm">Buckeye, Arizona</span>
+            </div>
+            <div className="flex items-start gap-2 text-white/60 mb-2">
+              <Mail size={14} className="mt-0.5 shrink-0 text-[#FF5500]" />
+              <a
+                href="mailto:DesertValleyDesignsContact@gmail.com"
+                className="text-sm hover:text-[#FF5500] transition-colors"
+              >
+                DesertValleyDesignsContact@gmail.com
+              </a>
             </div>
             <p className="text-white/50 text-sm leading-relaxed mt-3">
               Custom apparel and logo design rooted in the spirit of the desert

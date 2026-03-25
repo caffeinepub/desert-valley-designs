@@ -31,10 +31,10 @@ const pricingCategories = [
     title: "T-Shirts",
     subtitle: "Construction",
     tiers: [
-      { qty: "1–15 shirts", price: "$25 each" },
-      { qty: "16–30 shirts", price: "$22 each" },
-      { qty: "31–50 shirts", price: "$20 each" },
-      { qty: "50+ shirts", price: "$18 each" },
+      { qty: "1–15 shirts", price: "$26 each" },
+      { qty: "16–30 shirts", price: "$23 each" },
+      { qty: "31–50 shirts", price: "$21 each" },
+      { qty: "51+ shirts", price: "$19 each" },
     ],
     note: "Includes vinyl printing.",
   },
@@ -42,10 +42,10 @@ const pricingCategories = [
     title: "T-Shirts",
     subtitle: "Softstyle / Restaurant",
     tiers: [
-      { qty: "1–15 shirts", price: "$28 each" },
-      { qty: "16–30 shirts", price: "$25 each" },
-      { qty: "31–50 shirts", price: "$22 each" },
-      { qty: "50+ shirts", price: "$20 each" },
+      { qty: "1–15 shirts", price: "$29 each" },
+      { qty: "16–30 shirts", price: "$26 each" },
+      { qty: "31–50 shirts", price: "$23 each" },
+      { qty: "51+ shirts", price: "$21 each" },
     ],
     note: "Includes vinyl printing.",
   },
@@ -53,10 +53,10 @@ const pricingCategories = [
     title: "Polos",
     subtitle: "",
     tiers: [
-      { qty: "1–15 polos", price: "$35 each" },
-      { qty: "16–30 polos", price: "$32 each" },
-      { qty: "31–50 polos", price: "$30 each" },
-      { qty: "50+ polos", price: "$28 each" },
+      { qty: "1–15 polos", price: "$36 each" },
+      { qty: "16–30 polos", price: "$33 each" },
+      { qty: "31–50 polos", price: "$31 each" },
+      { qty: "51+ polos", price: "$29 each" },
     ],
     note: "Includes vinyl printing.",
   },
@@ -65,7 +65,7 @@ const pricingCategories = [
 const logoPricing = [
   {
     title: "Simple Logo",
-    price: "$50",
+    price: "$51",
     description: "Text-based or minimal icon logo",
     includes: [
       "1 concept",
@@ -76,7 +76,7 @@ const logoPricing = [
   },
   {
     title: "Standard Logo",
-    price: "$75",
+    price: "$76",
     description: "Custom icon + text combination",
     includes: [
       "2 concepts",
@@ -88,7 +88,7 @@ const logoPricing = [
   },
   {
     title: "Full Brand Package",
-    price: "$100",
+    price: "$101",
     description: "Complete brand identity design",
     includes: [
       "3 concepts",
