@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -20,8 +19,6 @@ import {
   CheckCircle2,
   Flame,
   Loader2,
-  Minus,
-  Plus,
   ShoppingCart,
   Trash2,
   X,
@@ -70,6 +67,8 @@ const VINYL_COLORS = [
 
 const KIDS_SIZES = ["Kids-XS", "Kids-S", "Kids-M", "Kids-L", "Kids-XL"];
 const ADULT_SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"];
+const UPCHARGE_SIZES = new Set(["2XL", "3XL", "4XL", "5XL"]);
+const UPCHARGE_AMOUNT = 3;
 
 interface ProductDef {
   id: string;
@@ -97,9 +96,9 @@ const PRODUCTS: ProductDef[] = [
     hasSleeveOption: true,
     pricing: {
       min: 19,
-      max: 27,
+      max: 26,
       tiers: [
-        { label: "1–15 shirts", price: 27 },
+        { label: "1–15 shirts", price: 26 },
         { label: "16–30 shirts", price: 23 },
         { label: "31–50 shirts", price: 21 },
         { label: "51+ shirts", price: 19 },
@@ -114,13 +113,13 @@ const PRODUCTS: ProductDef[] = [
     category: "work",
     shirtType: "Polo",
     pricing: {
-      min: 23,
+      min: 24,
       max: 31,
       tiers: [
         { label: "1–15 polos", price: 31 },
-        { label: "16–30 polos", price: 27 },
-        { label: "31–50 polos", price: 25 },
-        { label: "51+ polos", price: 23 },
+        { label: "16–30 polos", price: 28 },
+        { label: "31–50 polos", price: 26 },
+        { label: "51+ polos", price: 24 },
       ],
     },
   },
@@ -133,9 +132,9 @@ const PRODUCTS: ProductDef[] = [
     shirtType: "Softstyle T-Shirt",
     pricing: {
       min: 20,
-      max: 28,
+      max: 27,
       tiers: [
-        { label: "1–15 shirts", price: 28 },
+        { label: "1–15 shirts", price: 27 },
         { label: "16–30 shirts", price: 24 },
         { label: "31–50 shirts", price: 22 },
         { label: "51+ shirts", price: 20 },
@@ -195,13 +194,31 @@ function getPricePerUnit(shirtType: string, totalQty: number): number {
   return tiers[0].price;
 }
 
+// 2XL+ sizes always use the 1–15 tier price (no quantity discount)
+function getPriceForSize(
+  shirtType: string,
+  size: string,
+  totalQty: number,
+): number {
+  const isUpcharge = UPCHARGE_SIZES.has(size);
+  const p = PRODUCTS.find((pr) => pr.shirtType === shirtType);
+  if (!p) return 25 + (isUpcharge ? UPCHARGE_AMOUNT : 0);
+  const basePrice = isUpcharge
+    ? p.pricing.tiers[0].price
+    : getPricePerUnit(shirtType, totalQty);
+  return basePrice + (isUpcharge ? UPCHARGE_AMOUNT : 0);
+}
+
 function itemTotalQty(item: CartItem): number {
   return Object.values(item.sizes).reduce((s, q) => s + q, 0);
 }
 
 function itemSubtotal(item: CartItem): number {
-  const qty = itemTotalQty(item);
-  return qty * getPricePerUnit(item.shirtType, qty);
+  const totalQty = itemTotalQty(item);
+  return Object.entries(item.sizes).reduce((sum, [size, qty]) => {
+    if (qty <= 0) return sum;
+    return sum + qty * getPriceForSize(item.shirtType, size, totalQty);
+  }, 0);
 }
 
 function cartTotal(cart: CartItem[]): number {
@@ -237,69 +254,44 @@ function SizeRow({
           const qty = values[size] ?? 0;
           const inputDisplay =
             inputValues[size] !== undefined ? inputValues[size] : String(qty);
+          const hasUpcharge = UPCHARGE_SIZES.has(size);
           return (
             <div key={size} className="flex flex-col items-center gap-1">
               <span className="text-xs font-bold uppercase text-[#111]">
                 {size.replace("Kids-", "K-")}
               </span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = Math.max(0, qty - 1);
-                    setInputValues((prev) => ({
-                      ...prev,
-                      [size]: String(next),
-                    }));
-                    onChange(size, next);
-                  }}
-                  className="w-6 h-6 border-2 border-[#111] flex items-center justify-center hover:bg-gray-100 transition-colors"
-                >
-                  <Minus size={10} />
-                </button>
-                <input
-                  type="number"
-                  min={0}
-                  value={inputDisplay}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    setInputValues((prev) => ({ ...prev, [size]: raw }));
-                    const parsed = Number.parseInt(raw, 10);
-                    onChange(
-                      size,
-                      Number.isNaN(parsed) ? 0 : Math.max(0, parsed),
-                    );
-                  }}
-                  onBlur={(e) => {
-                    const parsed = Number.parseInt(e.target.value, 10);
-                    const clamped = Number.isNaN(parsed)
-                      ? 0
-                      : Math.max(0, parsed);
-                    setInputValues((prev) => ({
-                      ...prev,
-                      [size]: String(clamped),
-                    }));
-                    onChange(size, clamped);
-                  }}
-                  className="w-10 h-6 text-center text-sm font-black border-2 border-[#111] bg-white focus:outline-none focus:border-[#FF5500] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  style={{ color: qty > 0 ? "#FF5500" : "#888" }}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = qty + 1;
-                    setInputValues((prev) => ({
-                      ...prev,
-                      [size]: String(next),
-                    }));
-                    onChange(size, next);
-                  }}
-                  className="w-6 h-6 border-2 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                  style={{ borderColor: "#FF5500" }}
-                >
-                  <Plus size={10} />
-                </button>
-              </div>
+              {hasUpcharge && (
+                <span className="text-[9px] font-black text-[#FF5500] leading-none">
+                  +$3
+                </span>
+              )}
+              <input
+                type="number"
+                min={0}
+                value={inputDisplay}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  setInputValues((prev) => ({ ...prev, [size]: raw }));
+                  const parsed = Number.parseInt(raw, 10);
+                  onChange(
+                    size,
+                    Number.isNaN(parsed) ? 0 : Math.max(0, parsed),
+                  );
+                }}
+                onBlur={(e) => {
+                  const parsed = Number.parseInt(e.target.value, 10);
+                  const clamped = Number.isNaN(parsed)
+                    ? 0
+                    : Math.max(0, parsed);
+                  setInputValues((prev) => ({
+                    ...prev,
+                    [size]: String(clamped),
+                  }));
+                  onChange(size, clamped);
+                }}
+                className="w-14 h-9 text-center text-sm font-black border-2 border-[#111] bg-white focus:outline-none focus:border-[#FF5500] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                style={{ color: qty > 0 ? "#FF5500" : "#888" }}
+              />
             </div>
           );
         })}
@@ -400,38 +392,22 @@ function ProductCard({
           {product.description}
         </p>
         <div className="mb-5">
-          {product.hasBYOS ? (
-            <div className="flex items-center gap-3 bg-[#FFF8F0] border-2 border-[#FF5500] px-4 py-3">
-              <span className="font-['Bebas_Neue'] text-3xl text-[#FF5500] leading-none">
-                $10
-              </span>
-              <div>
-                <p className="font-black text-sm text-[#111] uppercase tracking-wider">
-                  Per Shirt
-                </p>
-                <p className="text-xs text-[#888]">Flat rate — any quantity</p>
+          <p className="font-black uppercase text-xs tracking-wider mb-2 text-[#111]">
+            Pricing Tiers
+          </p>
+          <div className="grid grid-cols-2 gap-1">
+            {product.pricing.tiers.map((tier) => (
+              <div
+                key={tier.label}
+                className="flex items-center justify-between bg-gray-50 border border-gray-200 px-3 py-1.5"
+              >
+                <span className="text-xs text-[#555]">{tier.label}</span>
+                <span className="text-xs font-black text-[#FF5500]">
+                  ${tier.price}
+                </span>
               </div>
-            </div>
-          ) : (
-            <>
-              <p className="font-black uppercase text-xs tracking-wider mb-2 text-[#111]">
-                Pricing Tiers
-              </p>
-              <div className="grid grid-cols-2 gap-1">
-                {product.pricing.tiers.map((tier) => (
-                  <div
-                    key={tier.label}
-                    className="flex items-center justify-between bg-gray-50 border border-gray-200 px-3 py-1.5"
-                  >
-                    <span className="text-xs text-[#555]">{tier.label}</span>
-                    <span className="text-xs font-black text-[#FF5500]">
-                      ${tier.price}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+            ))}
+          </div>
         </div>
         <div className="mt-auto">
           <button
@@ -509,6 +485,16 @@ export default function Order() {
   };
 
   const modalTotalQty = Object.values(modalSizes).reduce((s, q) => s + q, 0);
+
+  const modalSubtotal = customizing
+    ? Object.entries(modalSizes).reduce((sum, [size, qty]) => {
+        if (qty <= 0) return sum;
+        return (
+          sum +
+          qty * getPriceForSize(customizing.shirtType, size, modalTotalQty)
+        );
+      }, 0)
+    : 0;
 
   const handleAddToCart = () => {
     if (!customizing || modalTotalQty === 0) return;
@@ -775,7 +761,7 @@ export default function Order() {
                     </p>
                     <p className="text-xs text-[#555] mt-0.5">
                       Drop off your shirt at our shop and we'll apply the vinyl
-                      for you. $10 flat per shirt.
+                      for you.
                     </p>
                   </div>
                 </div>
@@ -800,8 +786,11 @@ export default function Order() {
 
               {/* Sizes */}
               <div>
-                <p className="font-black uppercase text-xs tracking-widest mb-4 text-[#111]">
+                <p className="font-black uppercase text-xs tracking-widest mb-1 text-[#111]">
                   Sizes & Quantities
+                </p>
+                <p className="text-xs text-[#888] mb-4">
+                  2XL and above are +$3 per shirt.
                 </p>
                 <SizeRow
                   label="Kids (XS–XL)"
@@ -825,11 +814,7 @@ export default function Order() {
                       Total: {modalTotalQty} shirts @ $
                       {getPricePerUnit(customizing.shirtType, modalTotalQty)}/ea
                       {" = "}
-                      <span className="font-black">
-                        $
-                        {modalTotalQty *
-                          getPricePerUnit(customizing.shirtType, modalTotalQty)}
-                      </span>
+                      <span className="font-black">${modalSubtotal}</span>
                     </p>
                   </div>
                 )}
@@ -880,7 +865,7 @@ export default function Order() {
             </div>
           </SheetHeader>
 
-          <ScrollArea className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
             <div className="px-6 py-4">
               <AnimatePresence>
                 {orderId !== null ? (
@@ -1037,6 +1022,11 @@ export default function Order() {
                                           className="text-xs px-2 py-0.5 bg-white border-2 border-[#111] font-bold text-[#111]"
                                         >
                                           {size.replace("Kids-", "K-")}\u00d7{q}
+                                          {UPCHARGE_SIZES.has(size) && (
+                                            <span className="text-[#FF5500] ml-0.5">
+                                              +$3
+                                            </span>
+                                          )}
                                         </span>
                                       ))}
                                   </div>
@@ -1176,7 +1166,7 @@ export default function Order() {
                 )}
               </AnimatePresence>
             </div>
-          </ScrollArea>
+          </div>
 
           {cart.length > 0 && orderId === null && (
             <div className="border-t-4 border-[#111] bg-white px-6 py-4 space-y-2 shrink-0">
