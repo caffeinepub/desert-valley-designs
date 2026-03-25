@@ -116,10 +116,10 @@ const PRODUCTS: ProductDef[] = [
       min: 24,
       max: 31,
       tiers: [
-        { label: "1–15 polos", price: 31 },
-        { label: "16–30 polos", price: 28 },
-        { label: "31–50 polos", price: 26 },
-        { label: "51+ polos", price: 24 },
+        { label: "1–15 polos", price: 32 },
+        { label: "16–30 polos", price: 29 },
+        { label: "31–50 polos", price: 27 },
+        { label: "51+ polos", price: 25 },
       ],
     },
   },
@@ -289,7 +289,7 @@ function SizeRow({
                   }));
                   onChange(size, clamped);
                 }}
-                className="w-14 h-9 text-center text-sm font-black border-2 border-[#111] bg-white focus:outline-none focus:border-[#FF5500] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-14 h-9 text-center text-base font-black border-2 border-[#111] bg-white focus:outline-none focus:border-[#FF5500] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 style={{ color: qty > 0 ? "#FF5500" : "#888" }}
               />
             </div>
@@ -1021,7 +1021,7 @@ export default function Order() {
                                           key={size}
                                           className="text-xs px-2 py-0.5 bg-white border-2 border-[#111] font-bold text-[#111]"
                                         >
-                                          {size.replace("Kids-", "K-")}\u00d7{q}
+                                          {size.replace("Kids-", "K-")} × {q}
                                           {UPCHARGE_SIZES.has(size) && (
                                             <span className="text-[#FF5500] ml-0.5">
                                               +$3
