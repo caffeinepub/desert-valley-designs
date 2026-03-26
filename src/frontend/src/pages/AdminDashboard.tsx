@@ -22,7 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useActor } from "../hooks/useActor";
 
 const ADMIN_KEY = "dvd_admin_logged_in";
-const STATUSES = ["Pending", "Reviewed", "Completed"];
+const STATUSES = ["New", "In Progress", "Ready", "Delivered"];
 const PAYMENT_METHODS = [
   "Cash",
   "Zelle",
@@ -86,23 +86,29 @@ type SortField = "date" | "name" | "phone" | "totalPaid";
 type SortDir = "asc" | "desc";
 
 function statusColor(s: string): React.CSSProperties {
-  if (s === "Pending")
-    return {
-      backgroundColor: "#FFF5EE",
-      color: "#E56020",
-      border: "1px solid #E56020",
-    };
-  if (s === "Reviewed")
+  if (s === "New")
     return {
       backgroundColor: "#EEF2FF",
       color: "#3B5BDB",
       border: "1px solid #3B5BDB",
     };
-  if (s === "Completed")
+  if (s === "In Progress")
+    return {
+      backgroundColor: "#FFF5EE",
+      color: "#E56020",
+      border: "1px solid #E56020",
+    };
+  if (s === "Ready")
     return {
       backgroundColor: "#F0FFF4",
       color: "#22863a",
       border: "1px solid #22863a",
+    };
+  if (s === "Delivered")
+    return {
+      backgroundColor: "#F3F4F6",
+      color: "#6B7280",
+      border: "1px solid #9CA3AF",
     };
   return {};
 }
@@ -590,8 +596,8 @@ export default function AdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Order status counts */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {["All", "Pending", "Reviewed", "Completed"].map((label) => {
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+          {["All", "New", "In Progress", "Ready", "Delivered"].map((label) => {
             const count =
               label === "All"
                 ? orders.length
@@ -611,13 +617,15 @@ export default function AdminDashboard() {
                   className="text-xs font-bold uppercase tracking-wider mt-1"
                   style={{
                     color:
-                      label === "Pending"
-                        ? "#E56020"
-                        : label === "Reviewed"
-                          ? "#3B5BDB"
-                          : label === "Completed"
+                      label === "New"
+                        ? "#3B5BDB"
+                        : label === "In Progress"
+                          ? "#E56020"
+                          : label === "Ready"
                             ? "#22863a"
-                            : "#1D1160",
+                            : label === "Delivered"
+                              ? "#6B7280"
+                              : "#1D1160",
                   }}
                 >
                   {label}

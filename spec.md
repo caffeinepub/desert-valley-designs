@@ -1,30 +1,23 @@
 # Desert Valley Designs
 
 ## Current State
-The admin dashboard has two tabs: Apparel Orders and Logo Requests. Orders include financial tracking (price per shirt, deposit, total paid, cost per shirt, profit, tax set aside). Advanced search/filter/sort is implemented. No expense tracking exists.
+Admin dashboard has orders tab with financial tracking, search/filter/sort by name, phone, date, payment method, status, and total. Orders have a status field already used for filtering. Expense Tracker tab exists. Backend has order management with updateOrderStatus function (or similar).
 
 ## Requested Changes (Diff)
 
 ### Add
-- Backend: `Expense` type with id, date (Int nanoseconds), category (Text), description (Text), amount (Int cents), vendor (Text)
-- Backend: `addExpense`, `getExpenses` methods
-- Frontend: "Expenses" tab in admin dashboard
-- Frontend: Add expense form (date, category, description, amount, vendor)
-- Frontend: Expense list table with search/filter by category and date range
-- Frontend: Summary stats showing total spent per category and overall total
-- Frontend: Tax summary section combining order profits and expenses
+- Order status dropdown/selector on each order row in the admin dashboard allowing admin to change status between: New, In Progress, Ready, Delivered
+- Visual status badges with distinct colors for each status
+- Status update persists to backend
 
 ### Modify
-- Backend main.mo: add expense state and methods
-- AdminDashboard.tsx: add Expenses tab
+- Each order row/card in the Orders tab should show the current status as a colored badge and allow changing it via a dropdown
 
 ### Remove
 - Nothing
 
 ## Implementation Plan
-1. Add Expense type and methods to backend main.mo
-2. Add expense tab UI to AdminDashboard.tsx with:
-   - Add expense form
-   - Expense list with category filter
-   - Summary by category
-   - Overall tax summary (revenue - costs - expenses = net profit, 25% tax estimate)
+1. Add updateOrderStatus backend call in AdminDashboard if not already wired
+2. Add a status dropdown on each order row that calls updateOrderStatus when changed
+3. Color-code status badges: New (blue), In Progress (yellow/orange), Ready (green), Delivered (gray)
+4. Ensure status change is reflected immediately in UI (optimistic update or refetch)
