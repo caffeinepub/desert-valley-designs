@@ -63,6 +63,22 @@ export interface NewLogoRequest {
     imageUrl: string;
     phone: string;
 }
+export interface Expense {
+    id: bigint;
+    date: bigint;
+    category: string;
+    description: string;
+    amount: bigint;
+    vendor: string;
+    createdAt: bigint;
+}
+export interface NewExpense {
+    date: bigint;
+    category: string;
+    description: string;
+    amount: bigint;
+    vendor: string;
+}
 export interface backendInterface {
     addVideo(title: string, url: string, thumbnail: ExternalBlob, price: bigint): Promise<bigint>;
     adminLogin(username: string, password: string): Promise<boolean>;
@@ -73,4 +89,17 @@ export interface backendInterface {
     submitOrder(form: NewOrder): Promise<bigint>;
     updateLogoRequestStatus(id: bigint, status: string): Promise<boolean>;
     updateOrderStatus(id: bigint, status: string): Promise<boolean>;
+    getAllOrderFinancials(): Promise<Array<[bigint, OrderFinancials]>>;
+    updateOrderFinancials(id: bigint, financials: OrderFinancials): Promise<boolean>;
+    getExpenses(): Promise<Array<Expense>>;
+    addExpense(form: NewExpense): Promise<bigint>;
+}
+export interface OrderFinancials {
+    totalPaid: bigint;
+    depositPaid: bigint;
+    paymentMethod: string;
+    dateDelivered: bigint;
+    costPerShirt: bigint;
+    pricePerShirt: bigint;
+    designNotes: string;
 }

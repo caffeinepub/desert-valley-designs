@@ -38,6 +38,7 @@ actor {
     sizes : [(Text, Nat)];
     category : Text;
   };
+
   type OrderV2 = {
     id : Nat;
     name : Text;
@@ -48,6 +49,17 @@ actor {
     status : Text;
     submittedAt : Int;
   };
+
+  type OrderFinancials = {
+    totalPaid : Int;
+    depositPaid : Int;
+    paymentMethod : Text;
+    dateDelivered : Int;
+    costPerShirt : Int;
+    pricePerShirt : Int;
+    designNotes : Text;
+  };
+
   type NewOrder = {
     name : Text;
     email : Text;
@@ -82,6 +94,24 @@ actor {
     releasedAt : Int;
   };
 
+  type Expense = {
+    id : Nat;
+    date : Int;
+    category : Text;
+    description : Text;
+    amount : Int;
+    vendor : Text;
+    createdAt : Int;
+  };
+
+  type NewExpense = {
+    date : Int;
+    category : Text;
+    description : Text;
+    amount : Int;
+    vendor : Text;
+  };
+
   type Empty = {};
 
   // tooling
@@ -98,15 +128,24 @@ actor {
     };
   };
 
+  module ExpenseUtil {
+    public func compareByDate(a : Expense, b : Expense) : Order.Order {
+      Int.compare(b.date, a.date);
+    };
+  };
+
   // state
 
   var orders = Map.empty<Nat, OrderV1>();
   var ordersV2 = Map.empty<Nat, OrderV2>();
+  var orderFinancialsMap = Map.empty<Nat, OrderFinancials>();
   var logoRequests = Map.empty<Nat, LogoRequest>();
   var videos = Map.empty<Nat, Video>();
+  var expenses = Map.empty<Nat, Expense>();
   var nextOrderId = 1;
   var nextLogoRequestId = 1;
   var nextVideoId = 1;
+  var nextExpenseId = 1;
   let adminPassword = "DesertValley2024!";
   let adminUsername = "admin";
 
@@ -139,12 +178,24 @@ actor {
     ordersV2.values().toArray().sort(OrderUtil.compareBySubmittedAt);
   };
 
+  public query func getOrderFinancials(id : Nat) : async ?OrderFinancials {
+    orderFinancialsMap.get(id);
+  };
+
+  public query func getAllOrderFinancials() : async [(Nat, OrderFinancials)] {
+    orderFinancialsMap.entries().toArray();
+  };
+
   public query func getLogoRequests() : async [LogoRequest] {
     logoRequests.values().toArray().sort(LogoUtil.compareBySubmittedAt);
   };
 
   public query func getVideoLibrary() : async [Video] {
     videos.values().toArray();
+  };
+
+  public query func getExpenses() : async [Expense] {
+    expenses.values().toArray().sort(ExpenseUtil.compareByDate);
   };
 
   // Mutations
@@ -169,6 +220,12 @@ actor {
   public shared func updateOrderStatus(id : Nat, status : Text) : async Bool {
     let o = tryFindOrder(id);
     ordersV2.add(id, { o with status });
+    true;
+  };
+
+  public shared func updateOrderFinancials(id : Nat, financials : OrderFinancials) : async Bool {
+    ignore tryFindOrder(id);
+    orderFinancialsMap.add(id, financials);
     true;
   };
 
@@ -207,6 +264,22 @@ actor {
     videos.add(nextVideoId, video);
     let currentId = nextVideoId;
     nextVideoId += 1;
+    currentId;
+  };
+
+  public shared func addExpense(form : NewExpense) : async Nat {
+    let expense : Expense = {
+      id = nextExpenseId;
+      date = form.date;
+      category = form.category;
+      description = form.description;
+      amount = form.amount;
+      vendor = form.vendor;
+      createdAt = Time.now();
+    };
+    expenses.add(nextExpenseId, expense);
+    let currentId = nextExpenseId;
+    nextExpenseId += 1;
     currentId;
   };
 

@@ -42,6 +42,15 @@ export interface NewOrder {
   'notes' : string,
   'phone' : string,
 }
+export interface OrderFinancials {
+  'totalPaid' : bigint,
+  'depositPaid' : bigint,
+  'paymentMethod' : string,
+  'dateDelivered' : bigint,
+  'costPerShirt' : bigint,
+  'pricePerShirt' : bigint,
+  'designNotes' : string,
+}
 export interface OrderV2 {
   'id' : bigint,
   'status' : string,
@@ -89,12 +98,15 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   'addVideo' : ActorMethod<[string, string, ExternalBlob, bigint], bigint>,
   'adminLogin' : ActorMethod<[string, string], boolean>,
+  'getAllOrderFinancials' : ActorMethod<[], Array<[bigint, OrderFinancials]>>,
   'getLogoRequests' : ActorMethod<[], Array<LogoRequest>>,
+  'getOrderFinancials' : ActorMethod<[bigint], [] | [OrderFinancials]>,
   'getOrders' : ActorMethod<[], Array<OrderV2>>,
   'getVideoLibrary' : ActorMethod<[], Array<Video>>,
   'submitLogoRequest' : ActorMethod<[NewLogoRequest], bigint>,
   'submitOrder' : ActorMethod<[NewOrder], bigint>,
   'updateLogoRequestStatus' : ActorMethod<[bigint, string], boolean>,
+  'updateOrderFinancials' : ActorMethod<[bigint, OrderFinancials], boolean>,
   'updateOrderStatus' : ActorMethod<[bigint, string], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
