@@ -473,6 +473,7 @@ export default function Order() {
 
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<bigint | null>(null);
+  const [confirmedCart, setConfirmedCart] = useState<CartItem[]>([]);
   const [orderError, setOrderError] = useState("");
 
   const openModal = (product: ProductDef) => {
@@ -570,6 +571,7 @@ export default function Order() {
         cartItems: cartItemsPayload,
         notes: fullNotes,
       });
+      setConfirmedCart(cart);
       setOrderId(id);
       setCart([]);
     } catch (err) {
@@ -871,29 +873,106 @@ export default function Order() {
                 {orderId !== null ? (
                   <motion.div
                     key="success"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-12"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="py-6"
                     data-ocid="order.success_state"
                   >
-                    <CheckCircle2
-                      size={56}
-                      className="mx-auto mb-4"
-                      style={{ color: "#16a34a" }}
-                    />
-                    <h3 className="font-['Bebas_Neue'] text-4xl text-[#111] tracking-wide mb-2">
-                      Order Submitted!
-                    </h3>
-                    <p className="text-sm mb-1 text-[#555]">
-                      Order #{orderId.toString()} received.
-                    </p>
-                    <p className="text-xs mb-6 text-[#888]">
-                      We'll review and reach out to you soon.
-                    </p>
+                    {/* Header */}
+                    <div className="text-center mb-6">
+                      <CheckCircle2
+                        size={56}
+                        className="mx-auto mb-3"
+                        style={{ color: "#16a34a" }}
+                      />
+                      <h3 className="font-['Bebas_Neue'] text-4xl text-[#111] tracking-wide mb-1">
+                        Order Received!
+                      </h3>
+                      <p className="text-xs font-bold uppercase tracking-widest text-[#FF5500] mb-1">
+                        Order #{orderId !== null ? orderId.toString() : ""}
+                      </p>
+                      <p className="text-sm text-[#555]">
+                        We'll reach out to confirm your order and arrange
+                        payment.
+                      </p>
+                    </div>
+
+                    {/* Order Summary */}
+                    <div className="border-4 border-[#111] bg-[#fffdf5] mb-4">
+                      <div className="bg-[#111] px-4 py-2">
+                        <span className="font-['Bebas_Neue'] text-lg text-[#FFD200] tracking-widest uppercase">
+                          Order Summary
+                        </span>
+                      </div>
+                      <div className="divide-y-2 divide-[#111]">
+                        {confirmedCart.map((item) => {
+                          const qty = itemTotalQty(item);
+                          const subtotal = itemSubtotal(item);
+                          const sizeEntries = Object.entries(item.sizes).filter(
+                            ([, q]) => q > 0,
+                          );
+                          return (
+                            <div key={item.id} className="px-4 py-3">
+                              <div className="flex justify-between items-start mb-1">
+                                <span className="font-black text-sm text-[#111] uppercase tracking-wide leading-tight">
+                                  {item.shirtType}
+                                </span>
+                                <span className="font-black text-sm text-[#FF5500]">
+                                  ${subtotal.toFixed(2)}
+                                </span>
+                              </div>
+                              {item.sleeveType && (
+                                <p className="text-xs text-[#555] uppercase tracking-wide mb-0.5">
+                                  {item.sleeveType}
+                                </p>
+                              )}
+                              {!item.isBYOS && (
+                                <p className="text-xs text-[#555] mb-0.5">
+                                  <span className="font-bold uppercase tracking-wide">
+                                    Shirt:
+                                  </span>{" "}
+                                  {item.shirtColor}
+                                </p>
+                              )}
+                              <p className="text-xs text-[#555] mb-1">
+                                <span className="font-bold uppercase tracking-wide">
+                                  Vinyl:
+                                </span>{" "}
+                                {item.vinylColor}
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {sizeEntries.map(([size, q]) => (
+                                  <span
+                                    key={size}
+                                    className="inline-block text-xs font-black bg-[#111] text-white px-2 py-0.5 uppercase"
+                                  >
+                                    {size} &times; {q}
+                                  </span>
+                                ))}
+                                <span className="text-xs text-[#888] self-center ml-1">
+                                  ({qty} shirt{qty !== 1 ? "s" : ""})
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="border-t-4 border-[#111] bg-[#FFD200] px-4 py-3 flex justify-between items-center">
+                        <span className="font-['Bebas_Neue'] text-xl text-[#111] tracking-widest uppercase">
+                          Total
+                        </span>
+                        <span className="font-['Bebas_Neue'] text-2xl text-[#111]">
+                          ${cartTotal(confirmedCart).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Shop More */}
                     <button
                       type="button"
                       onClick={() => {
                         setOrderId(null);
+                        setConfirmedCart([]);
                         setCartOpen(false);
                         setCustomerInfo({
                           name: "",
@@ -902,10 +981,10 @@ export default function Order() {
                           notes: "",
                         });
                       }}
-                      className="font-black uppercase tracking-wider px-8 py-3 text-white text-sm hover:bg-[#FFD200] hover:text-[#111] transition-colors bg-[#FF5500] border-4 border-[#111]"
+                      className="w-full font-black uppercase tracking-wider px-8 py-3 text-white text-sm hover:bg-[#FFD200] hover:text-[#111] transition-colors bg-[#FF5500] border-4 border-[#111]"
                       data-ocid="order.secondary_button"
                     >
-                      Continue Shopping
+                      Shop More
                     </button>
                   </motion.div>
                 ) : (
