@@ -90,7 +90,7 @@ const PRODUCTS: ProductDef[] = [
     id: "construction-tee",
     name: "T-Shirt",
     description:
-      "Heavy-duty 50/50 cotton-polyester tee built for job-site conditions. Rugged, breathable, and ready for anything.",
+      "50/50 cotton-polyester blend. A solid, neutral tee suited for work uniforms, crews, and everyday wear.",
     category: "work",
     shirtType: "T-Shirt",
     hasSleeveOption: true,
@@ -109,7 +109,7 @@ const PRODUCTS: ProductDef[] = [
     id: "polo",
     name: "Polo Shirt",
     description:
-      "Professional piqué polo perfect for crews, uniforms, and client-facing staff. Sharp look on every job.",
+      "A clean, neutral polo well-suited for work uniforms, crews, and professional settings.",
     category: "work",
     shirtType: "Polo",
     pricing: {
@@ -128,7 +128,7 @@ const PRODUCTS: ProductDef[] = [
     id: "byos",
     name: "Bring Your Own Shirt",
     description:
-      "Already have a shirt you love? Bring it in and we'll add custom vinyl to it. You bring the shirt, we bring the heat.",
+      "Have a shirt you already own? Bring it in and we'll press custom vinyl on it.",
     category: "everyday",
     shirtType: "Customer's Own Shirt",
     hasBYOS: true,
@@ -350,16 +350,6 @@ function ProductCard({
             {product.name}
           </h3>
           <div className="flex flex-col items-end gap-1">
-            <span
-              className="text-xs font-black uppercase tracking-wider px-2 py-1 whitespace-nowrap border-2 border-[#111]"
-              style={{
-                backgroundColor:
-                  product.category === "work" ? "#111111" : "#FF5500",
-                color: "white",
-              }}
-            >
-              {product.category === "work" ? "For Work" : "Everyday"}
-            </span>
             {product.hasSleeveOption && (
               <span className="text-xs font-black uppercase tracking-wider px-2 py-0.5 whitespace-nowrap border-2 border-[#FFD200] bg-[#FFD200] text-[#111]">
                 Short &amp; Long Sleeve
@@ -1016,19 +1006,6 @@ export default function Order() {
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <span
-                                      className="text-xs font-black uppercase tracking-wider px-2 py-0.5 text-white"
-                                      style={{
-                                        backgroundColor:
-                                          item.category === "work"
-                                            ? "#111111"
-                                            : "#FF5500",
-                                      }}
-                                    >
-                                      {item.category === "work"
-                                        ? "Work"
-                                        : "Everyday"}
-                                    </span>
                                     {item.sleeveType && (
                                       <span className="text-xs font-black uppercase tracking-wider px-2 py-0.5 bg-[#FFD200] text-[#111]">
                                         {item.sleeveType}
