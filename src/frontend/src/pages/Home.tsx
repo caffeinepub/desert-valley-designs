@@ -1,22 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  Flame,
-  Palette,
-  Shirt,
-  Star,
-  Sun,
-  Users,
-} from "lucide-react";
+import { ArrowRight, Flame, Palette, Shirt, Star, Sun } from "lucide-react";
 import { motion } from "motion/react";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 
-const stats = [
-  { icon: Users, value: "500+", label: "Happy Clients" },
-  { icon: Shirt, value: "10K+", label: "Garments Made" },
-  { icon: Star, value: "5-Star", label: "Rated Service" },
-];
+const stats = [{ icon: Star, value: "5-Star", label: "Rated Service" }];
 
 const services = [
   {
@@ -134,7 +122,7 @@ export default function Home() {
       {/* Stats — black bar */}
       <section className="bg-[#111111] py-12 border-y-4 border-[#FF5500]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-3 gap-8">
+          <div className="flex justify-center">
             {stats.map((s, i) => (
               <motion.div
                 key={s.label}
@@ -243,7 +231,7 @@ export default function Home() {
               <div className="h-1 w-12 bg-white/50" />
             </div>
             <p className="text-white/90 text-base leading-relaxed font-medium">
-              Every design is applied with 100% premium vinyl that’s built to
+              Every design is applied with 100% premium vinyl that's built to
               last. Wash it dozens of times and it holds up beautifully —
               guaranteed.
             </p>
@@ -260,13 +248,13 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <div className="inline-block text-[10px] font-black uppercase tracking-[0.3em] text-[#FF5500] bg-[#111] px-4 py-2 mb-4">
-              Let’s Make Something Bold
+              Let's Make Something Bold
             </div>
             <h2 className="font-['Bebas_Neue'] text-6xl sm:text-8xl text-[#111111] tracking-wide mb-4">
               Ready to Stand Out?
             </h2>
             <p className="text-[#333] text-lg mb-8 font-medium">
-              Let’s create something bold for your team, crew, or business.
+              Let's create something bold for your team, crew, or business.
             </p>
             <button
               type="button"

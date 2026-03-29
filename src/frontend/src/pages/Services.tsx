@@ -29,23 +29,12 @@ const logoDesign = [
 const pricingCategories = [
   {
     title: "T-Shirts",
-    subtitle: "Construction",
+    subtitle: "",
     tiers: [
-      { qty: "1–15 shirts", price: "$26 each" },
-      { qty: "16–30 shirts", price: "$23 each" },
-      { qty: "31–50 shirts", price: "$21 each" },
-      { qty: "51+ shirts", price: "$19 each" },
-    ],
-    note: "Includes vinyl printing.",
-  },
-  {
-    title: "T-Shirts",
-    subtitle: "Softstyle / Restaurant",
-    tiers: [
-      { qty: "1–15 shirts", price: "$29 each" },
-      { qty: "16–30 shirts", price: "$26 each" },
-      { qty: "31–50 shirts", price: "$23 each" },
-      { qty: "51+ shirts", price: "$21 each" },
+      { qty: "1–15 shirts", price: "$24 each" },
+      { qty: "16–30 shirts", price: "$22 each" },
+      { qty: "31–50 shirts", price: "$20 each" },
+      { qty: "51+ shirts", price: "$18 each" },
     ],
     note: "Includes vinyl printing.",
   },
@@ -53,10 +42,10 @@ const pricingCategories = [
     title: "Polos",
     subtitle: "",
     tiers: [
-      { qty: "1–15 polos", price: "$37 each" },
-      { qty: "16–30 polos", price: "$34 each" },
-      { qty: "31–50 polos", price: "$32 each" },
-      { qty: "51+ polos", price: "$30 each" },
+      { qty: "1–15 polos", price: "$30 each" },
+      { qty: "16–30 polos", price: "$28 each" },
+      { qty: "31–50 polos", price: "$26 each" },
+      { qty: "51+ polos", price: "$24 each" },
     ],
     note: "Includes vinyl printing.",
   },
@@ -241,15 +230,6 @@ export default function Services() {
                   </div>
                 )}
                 {idx === 1 && (
-                  <div className="h-48 bg-white flex items-center justify-center p-2">
-                    <img
-                      src="/assets/uploads/img_2616-019d22f8-ba0d-768d-acc4-2e8c48e83708-3.jpeg"
-                      alt="Softstyle T-Shirt"
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                )}
-                {idx === 2 && (
                   <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
                     <img
                       src="/assets/uploads/img_2615-019d2300-4efe-77a6-91a2-713b702886b1-1.jpeg"

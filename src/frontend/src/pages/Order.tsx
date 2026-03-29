@@ -88,20 +88,20 @@ interface ProductDef {
 const PRODUCTS: ProductDef[] = [
   {
     id: "construction-tee",
-    name: "Construction T-Shirt",
+    name: "T-Shirt",
     description:
       "Heavy-duty 50/50 cotton-polyester tee built for job-site conditions. Rugged, breathable, and ready for anything.",
     category: "work",
-    shirtType: "Construction T-Shirt",
+    shirtType: "T-Shirt",
     hasSleeveOption: true,
     pricing: {
-      min: 19,
-      max: 26,
+      min: 18,
+      max: 24,
       tiers: [
-        { label: "1–15 shirts", price: 26 },
-        { label: "16–30 shirts", price: 23 },
-        { label: "31–50 shirts", price: 21 },
-        { label: "51+ shirts", price: 19 },
+        { label: "1–15 shirts", price: 24 },
+        { label: "16–30 shirts", price: 22 },
+        { label: "31–50 shirts", price: 20 },
+        { label: "51+ shirts", price: 18 },
       ],
     },
   },
@@ -114,33 +114,16 @@ const PRODUCTS: ProductDef[] = [
     shirtType: "Polo",
     pricing: {
       min: 24,
-      max: 31,
+      max: 30,
       tiers: [
-        { label: "1–15 polos", price: 32 },
-        { label: "16–30 polos", price: 29 },
-        { label: "31–50 polos", price: 27 },
-        { label: "51+ polos", price: 25 },
+        { label: "1–15 polos", price: 30 },
+        { label: "16–30 polos", price: 28 },
+        { label: "31–50 polos", price: 26 },
+        { label: "51+ polos", price: 24 },
       ],
     },
   },
-  {
-    id: "softstyle-tee",
-    name: "Softstyle T-Shirt",
-    description:
-      "Ultra-soft ring-spun cotton for everyday wear and restaurant/service uniforms. Comfortable all day long.",
-    category: "everyday",
-    shirtType: "Softstyle T-Shirt",
-    pricing: {
-      min: 20,
-      max: 27,
-      tiers: [
-        { label: "1–15 shirts", price: 27 },
-        { label: "16–30 shirts", price: 24 },
-        { label: "31–50 shirts", price: 22 },
-        { label: "51+ shirts", price: 20 },
-      ],
-    },
-  },
+
   {
     id: "byos",
     name: "Bring Your Own Shirt",
@@ -173,6 +156,7 @@ interface CartItem {
   sizes: Record<string, number>;
   sleeveType?: SleeveType;
   isBYOS?: boolean;
+  designDescription?: string;
 }
 
 interface CustomerInfo {
@@ -463,6 +447,7 @@ export default function Order() {
   const [modalVinylColor, setModalVinylColor] = useState("White");
   const [modalSleeveType, setModalSleeveType] =
     useState<SleeveType>("Short Sleeve");
+  const [modalDesignDescription, setModalDesignDescription] = useState("");
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     name: "",
@@ -483,6 +468,7 @@ export default function Order() {
     setModalShirtColor("Black");
     setModalVinylColor("White");
     setModalSleeveType("Short Sleeve");
+    setModalDesignDescription("");
   };
 
   const modalTotalQty = Object.values(modalSizes).reduce((s, q) => s + q, 0);
@@ -508,6 +494,7 @@ export default function Order() {
       sizes: { ...modalSizes },
       sleeveType: customizing.hasSleeveOption ? modalSleeveType : undefined,
       isBYOS: customizing.hasBYOS,
+      designDescription: modalDesignDescription.trim() || undefined,
     };
     setCart((prev) => [...prev, newItem]);
     setCustomizing(null);
@@ -539,7 +526,7 @@ export default function Order() {
     const cartSummary = cart
       .map(
         (item, i) =>
-          `Item ${i + 1}: ${item.shirtType}${item.sleeveType ? ` (${item.sleeveType})` : ""}${
+          `Item ${i + 1}: ${item.shirtType}${item.sleeveType ? ` (${item.sleeveType})` : ""}${item.designDescription ? ` | Design: ${item.designDescription}` : ""}${
             item.isBYOS ? "" : ` | Shirt: ${item.shirtColor}`
           } | Vinyl: ${item.vinylColor} | ${Object.entries(item.sizes)
             .filter(([, q]) => q > 0)
@@ -822,6 +809,32 @@ export default function Order() {
                 )}
               </div>
 
+              {/* Design Description */}
+              <div className="mt-4">
+                <label
+                  htmlFor="modal-design-desc"
+                  className="block text-xs font-black uppercase tracking-widest text-[#111] mb-1"
+                >
+                  Describe Your Design{" "}
+                  <span className="text-gray-400 font-normal normal-case">
+                    (optional)
+                  </span>
+                </label>
+                <textarea
+                  id="modal-design-desc"
+                  value={modalDesignDescription}
+                  onChange={(e) => setModalDesignDescription(e.target.value)}
+                  placeholder="e.g. Company name in bold on the front, logo on the back, white vinyl..."
+                  rows={3}
+                  className="w-full border-2 border-[#111] p-2 text-sm font-medium resize-none focus:outline-none focus:border-[#FF5500] bg-white placeholder:text-gray-400"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Do you already have a logo/design file?{" "}
+                  <span className="font-semibold">Yes / No</span> — note it
+                  above.
+                </p>
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
@@ -953,6 +966,14 @@ export default function Order() {
                                   ({qty} shirt{qty !== 1 ? "s" : ""})
                                 </span>
                               </div>
+                              {item.designDescription && (
+                                <p className="text-xs text-[#555] mt-1">
+                                  <span className="font-bold uppercase tracking-wide">
+                                    Design:
+                                  </span>{" "}
+                                  {item.designDescription}
+                                </p>
+                              )}
                             </div>
                           );
                         })}
@@ -1109,7 +1130,13 @@ export default function Order() {
                                         </span>
                                       ))}
                                   </div>
-                                  <p className="mt-2 text-xs text-[#888]">
+                                  {item.designDescription && (
+                                    <p className="mt-1 text-xs text-[#555]">
+                                      <span className="font-bold">Design:</span>{" "}
+                                      {item.designDescription}
+                                    </p>
+                                  )}
+                                  <p className="mt-1 text-xs text-[#888]">
                                     {qty} units @ ${perUnit}/ea
                                   </p>
                                 </div>
