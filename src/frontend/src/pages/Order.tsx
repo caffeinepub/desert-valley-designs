@@ -408,31 +408,6 @@ function ProductCard({
   );
 }
 
-// ─── Section Header ─────────────────────────────────────────────────────────────────
-
-function SectionHeader({
-  title,
-  subtitle,
-  accent,
-}: { title: string; subtitle: string; accent: string }) {
-  return (
-    <div className="mb-8">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="h-1 w-12" style={{ backgroundColor: accent }} />
-        <h2 className="font-['Bebas_Neue'] text-4xl sm:text-5xl text-[#111111] tracking-wide">
-          {title}
-        </h2>
-      </div>
-      <p
-        className="text-sm text-[#555] font-medium"
-        style={{ paddingLeft: "60px" }}
-      >
-        {subtitle}
-      </p>
-    </div>
-  );
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────────
 
 export default function Order() {
@@ -619,29 +594,20 @@ export default function Order() {
 
       {/* Main content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* FOR WORK */}
-        <section className="mb-16">
-          <SectionHeader
-            title="For Work"
-            subtitle="Professional uniforms, job-site gear, and crew apparel built to perform."
-            accent="#111111"
-          />
-          <div className="grid sm:grid-cols-2 gap-6">
-            {workProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onCustomize={openModal} />
-            ))}
-          </div>
-        </section>
-
-        {/* FOR EVERYDAY */}
+        {/* COMBINED HEADING */}
         <section>
-          <SectionHeader
-            title="For Everyday"
-            subtitle="Soft, comfortable styles for restaurants, events, and everyday casual wear."
-            accent="#FF5500"
-          />
+          <div className="mb-10 text-center">
+            <h2 className="font-['Bebas_Neue'] text-4xl sm:text-5xl lg:text-6xl text-[#111111] tracking-wide leading-tight">
+              For Work, For Every Day Apparel &amp; For All Types of Events
+            </h2>
+            <div className="mt-3 flex justify-center gap-2">
+              <div className="h-1 w-16 bg-[#111111]" />
+              <div className="h-1 w-16 bg-[#FF5500]" />
+              <div className="h-1 w-16 bg-[#edff00]" />
+            </div>
+          </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {everydayProducts.map((p) => (
+            {[...workProducts, ...everydayProducts].map((p) => (
               <ProductCard key={p.id} product={p} onCustomize={openModal} />
             ))}
           </div>
