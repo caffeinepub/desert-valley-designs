@@ -193,6 +193,7 @@ export interface backendInterface {
     getAllOrderFinancials(): Promise<Array<[bigint, OrderFinancials]>>;
     getOrderFinancials(id: bigint): Promise<OrderFinancials | null>;
     updateOrderFinancials(id: bigint, financials: OrderFinancials): Promise<boolean>;
+    deleteExpense(id: bigint): Promise<boolean>;
     deleteOrder(id: bigint): Promise<boolean>;
     getExpenses(): Promise<Array<Expense>>;
     addExpense(form: NewExpense): Promise<bigint>;
@@ -420,6 +421,10 @@ export class Backend implements backendInterface {
     }
     async updateOrderFinancials(id: bigint, financials: OrderFinancials): Promise<boolean> {
         const result = await this.actor.updateOrderFinancials(id, financials);
+        return result;
+    }
+    async deleteExpense(id: bigint): Promise<boolean> {
+        const result = await this.actor.deleteExpense(id);
         return result;
     }
     async deleteOrder(id: bigint): Promise<boolean> {

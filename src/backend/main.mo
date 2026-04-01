@@ -324,6 +324,11 @@ actor {
     currentId;
   };
 
+  public shared func deleteExpense(id : Nat) : async Bool {
+    expenses.remove(id);
+    true;
+  };
+
   public shared func deleteOrder(id : Nat) : async Bool {
     ordersV2.remove(id);
     orderFinancialsMap.remove(id);

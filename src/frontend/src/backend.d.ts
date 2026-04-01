@@ -93,6 +93,7 @@ export interface backendInterface {
     updateOrderFinancials(id: bigint, financials: OrderFinancials): Promise<boolean>;
     getExpenses(): Promise<Array<Expense>>;
     addExpense(form: NewExpense): Promise<bigint>;
+    deleteExpense(id: bigint): Promise<boolean>;
 }
 export interface OrderFinancials {
     totalPaid: bigint;

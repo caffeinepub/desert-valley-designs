@@ -199,6 +199,10 @@ export default function AdminDashboard() {
   const [updatingOrder, setUpdatingOrder] = useState<bigint | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<bigint | null>(null);
   const [deletingOrder, setDeletingOrder] = useState<bigint | null>(null);
+  const [deleteExpenseConfirm, setDeleteExpenseConfirm] = useState<
+    bigint | null
+  >(null);
+  const [deletingExpense, setDeletingExpense] = useState<bigint | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
   // Per-order financials form state
@@ -283,7 +287,16 @@ export default function AdminDashboard() {
       for (const [id, f] of financialsData) {
         fMap.set(id.toString(), financialsToForm(f));
       }
-      setFormsMap(fMap);
+      setFormsMap((existing) => {
+        const merged = new Map(existing);
+        for (const [id, f] of financialsData) {
+          const key = id.toString();
+          if (!merged.has(key)) {
+            merged.set(key, financialsToForm(f));
+          }
+        }
+        return merged;
+      });
       setOrdersError(null);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
@@ -335,15 +348,6 @@ export default function AdminDashboard() {
     }
   }, [actor, isFetching, fetchOrders, fetchLogoRequests, fetchExpenses]);
 
-  // Auto-poll orders every 30 seconds
-  useEffect(() => {
-    if (!actor) return;
-    const interval = setInterval(() => {
-      fetchOrders();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [actor, fetchOrders]);
-
   const logout = () => {
     localStorage.removeItem(ADMIN_KEY);
     navigate({ to: "/admin", replace: true });
@@ -371,6 +375,18 @@ export default function AdminDashboard() {
     } finally {
       setDeletingOrder(null);
       setDeleteConfirm(null);
+    }
+  };
+
+  const handleDeleteExpense = async (id: bigint) => {
+    if (!actor) return;
+    setDeletingExpense(id);
+    try {
+      await actor.deleteExpense(id);
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+    } finally {
+      setDeletingExpense(null);
+      setDeleteExpenseConfirm(null);
     }
   };
 
@@ -2162,6 +2178,18 @@ export default function AdminDashboard() {
                             >
                               ${(Number(expense.amount) / 100).toFixed(2)}
                             </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setDeleteExpenseConfirm(expense.id)
+                              }
+                              className="shrink-0 p-1.5 rounded-full hover:bg-red-100 transition-colors"
+                              title="Delete expense"
+                              style={{ color: "#dc2626" }}
+                              data-ocid={`expense.delete.${idx + 1}`}
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </motion.div>
                         ))}
                         <div
@@ -2360,6 +2388,69 @@ export default function AdminDashboard() {
                   data-ocid="admin.confirm_button"
                 >
                   {deletingOrder !== null ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : null}
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Delete Expense Confirmation Dialog */}
+        {deleteExpenseConfirm !== null && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+            data-ocid="admin.expense_dialog"
+          >
+            <div
+              className="rounded-2xl p-8 max-w-sm w-full mx-4 border-4"
+              style={{ backgroundColor: "#fff", borderColor: "#dc2626" }}
+            >
+              <h2
+                className="font-black text-2xl uppercase tracking-wider mb-3"
+                style={{
+                  color: "#dc2626",
+                  fontFamily: "Bebas Neue, sans-serif",
+                }}
+              >
+                Delete Expense?
+              </h2>
+              <p
+                className="text-sm font-semibold mb-6"
+                style={{ color: "#444" }}
+              >
+                This expense will be permanently deleted and cannot be
+                recovered. Are you sure?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteExpenseConfirm(null)}
+                  className="flex-1 font-bold uppercase tracking-wider text-sm px-4 py-2.5 border-2 hover:opacity-80 transition-opacity"
+                  style={{
+                    borderColor: "#888",
+                    color: "#444",
+                    borderRadius: "9999px",
+                  }}
+                  data-ocid="admin.expense_cancel_button"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteExpense(deleteExpenseConfirm)}
+                  disabled={deletingExpense !== null}
+                  className="flex-1 font-bold uppercase tracking-wider text-sm px-4 py-2.5 border-2 hover:opacity-80 transition-opacity flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: "#dc2626",
+                    borderColor: "#dc2626",
+                    color: "#fff",
+                    borderRadius: "9999px",
+                  }}
+                  data-ocid="admin.expense_confirm_button"
+                >
+                  {deletingExpense !== null ? (
                     <Loader2 size={14} className="animate-spin" />
                   ) : null}
                   Yes, Delete
