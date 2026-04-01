@@ -134,18 +134,59 @@ actor {
     };
   };
 
-  // state
+  // ── Stable backing storage (survives upgrades) ─────────────────────────────
+  stable var stableOrdersV2 : [(Nat, OrderV2)] = [];
+  stable var stableOrderFinancials : [(Nat, OrderFinancials)] = [];
+  stable var stableLogoRequests : [(Nat, LogoRequest)] = [];
+  stable var stableExpenses : [(Nat, Expense)] = [];
+  stable var stableNextOrderId : Nat = 1;
+  stable var stableNextLogoRequestId : Nat = 1;
+  stable var stableNextVideoId : Nat = 1;
+  stable var stableNextExpenseId : Nat = 1;
 
+  // ── In-memory working state ────────────────────────────────────────────────
   var orders = Map.empty<Nat, OrderV1>();
   var ordersV2 = Map.empty<Nat, OrderV2>();
   var orderFinancialsMap = Map.empty<Nat, OrderFinancials>();
   var logoRequests = Map.empty<Nat, LogoRequest>();
   var videos = Map.empty<Nat, Video>();
   var expenses = Map.empty<Nat, Expense>();
-  var nextOrderId = 1;
-  var nextLogoRequestId = 1;
-  var nextVideoId = 1;
-  var nextExpenseId = 1;
+  var nextOrderId = stableNextOrderId;
+  var nextLogoRequestId = stableNextLogoRequestId;
+  var nextVideoId = stableNextVideoId;
+  var nextExpenseId = stableNextExpenseId;
+
+  // ── Upgrade hooks ──────────────────────────────────────────────────────────
+  system func preupgrade() {
+    stableOrdersV2 := ordersV2.entries().toArray();
+    stableOrderFinancials := orderFinancialsMap.entries().toArray();
+    stableLogoRequests := logoRequests.entries().toArray();
+    stableExpenses := expenses.entries().toArray();
+    stableNextOrderId := nextOrderId;
+    stableNextLogoRequestId := nextLogoRequestId;
+    stableNextVideoId := nextVideoId;
+    stableNextExpenseId := nextExpenseId;
+  };
+
+  system func postupgrade() {
+    for ((k, v) in stableOrdersV2.vals()) {
+      ordersV2.add(k, v);
+    };
+    for ((k, v) in stableOrderFinancials.vals()) {
+      orderFinancialsMap.add(k, v);
+    };
+    for ((k, v) in stableLogoRequests.vals()) {
+      logoRequests.add(k, v);
+    };
+    for ((k, v) in stableExpenses.vals()) {
+      expenses.add(k, v);
+    };
+    nextOrderId := stableNextOrderId;
+    nextLogoRequestId := stableNextLogoRequestId;
+    nextVideoId := stableNextVideoId;
+    nextExpenseId := stableNextExpenseId;
+  };
+
   let adminPassword = "DesertValley2024!";
   let adminUsername = "admin";
 

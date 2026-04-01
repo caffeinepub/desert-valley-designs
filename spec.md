@@ -1,23 +1,23 @@
 # Desert Valley Designs
 
 ## Current State
-Admin dashboard has orders tab with financial tracking, search/filter/sort by name, phone, date, payment method, status, and total. Orders have a status field already used for filtering. Expense Tracker tab exists. Backend has order management with updateOrderStatus function (or similar).
+All backend state (orders, logo requests, expenses, financials, counters) is stored in non-stable `var` variables. Every canister upgrade (deployment) wipes all data. This is why orders disappear — each new deployment resets the store.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Order status dropdown/selector on each order row in the admin dashboard allowing admin to change status between: New, In Progress, Ready, Delivered
-- Visual status badges with distinct colors for each status
-- Status update persists to backend
+- `stable var` backing arrays for all state (ordersV2, orderFinancials, logoRequests, expenses, and ID counters)
+- `system func preupgrade()` to serialize in-memory maps to stable arrays before upgrade
+- `system func postupgrade()` to restore in-memory maps from stable arrays after upgrade
 
 ### Modify
-- Each order row/card in the Orders tab should show the current status as a colored badge and allow changing it via a dropdown
+- All `nextOrderId`, `nextLogoRequestId`, `nextExpenseId`, `nextVideoId` counters become stable
 
 ### Remove
-- Nothing
+- Nothing removed
 
 ## Implementation Plan
-1. Add updateOrderStatus backend call in AdminDashboard if not already wired
-2. Add a status dropdown on each order row that calls updateOrderStatus when changed
-3. Color-code status badges: New (blue), In Progress (yellow/orange), Ready (green), Delivered (gray)
-4. Ensure status change is reflected immediately in UI (optimistic update or refetch)
+1. Add stable backing arrays for each Map and each counter
+2. Add preupgrade hook: copy all map entries + counters into stable arrays
+3. Add postupgrade hook: repopulate in-memory maps from stable arrays, restore counters
+4. Deploy — existing orders submitted after the fix will survive future deployments
