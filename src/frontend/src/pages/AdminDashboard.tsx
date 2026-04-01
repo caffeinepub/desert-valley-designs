@@ -266,7 +266,7 @@ export default function AdminDashboard() {
     try {
       const [data, financialsData] = await Promise.all([
         actor.getOrders(),
-        (actor as any).getAllOrderFinancials(),
+        actor.getAllOrderFinancials(),
       ]);
       setOrders(
         [...data]
@@ -318,7 +318,7 @@ export default function AdminDashboard() {
     if (!actor) return;
     setExpensesLoading(true);
     try {
-      const data = await (actor as any).getExpenses();
+      const data = await actor.getExpenses();
       setExpenses([...data].sort((a, b) => Number(b.date - a.date)));
     } catch (err) {
       console.error("Failed to fetch expenses:", err);
@@ -366,7 +366,7 @@ export default function AdminDashboard() {
     if (!actor) return;
     setDeletingOrder(id);
     try {
-      await (actor as any).deleteOrder(id);
+      await actor.deleteOrder(id);
       setOrders((prev) => prev.filter((o) => o.id !== id));
     } finally {
       setDeletingOrder(null);
@@ -453,10 +453,7 @@ export default function AdminDashboard() {
 
     setSavingFinancials((prev) => new Set(prev).add(id));
     try {
-      await (actor as any).updateOrderFinancials(
-        order.id,
-        formToFinancials(finalForm),
-      );
+      await actor.updateOrderFinancials(order.id, formToFinancials(finalForm));
       setFinancialsMap((prev) => {
         const next = new Map(prev);
         next.set(id, formToFinancials(finalForm));
@@ -1905,7 +1902,7 @@ export default function AdminDashboard() {
                             Number.parseFloat(expenseForm.amount) * 100,
                           ),
                         );
-                        await (actor as any).addExpense({
+                        await actor.addExpense({
                           date: dateNs,
                           category: expenseForm.category,
                           description: expenseForm.description,

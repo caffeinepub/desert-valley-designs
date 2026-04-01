@@ -149,6 +149,31 @@ export interface _CaffeineStorageRefillResult {
     success?: boolean;
     topped_up_amount?: bigint;
 }
+export interface OrderFinancials {
+    totalPaid: bigint;
+    depositPaid: bigint;
+    paymentMethod: string;
+    dateDelivered: bigint;
+    costPerShirt: bigint;
+    pricePerShirt: bigint;
+    designNotes: string;
+}
+export interface Expense {
+    id: bigint;
+    date: bigint;
+    category: string;
+    description: string;
+    amount: bigint;
+    vendor: string;
+    createdAt: bigint;
+}
+export interface NewExpense {
+    date: bigint;
+    category: string;
+    description: string;
+    amount: bigint;
+    vendor: string;
+}
 export interface backendInterface {
     _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
     _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
@@ -165,6 +190,12 @@ export interface backendInterface {
     submitOrder(form: NewOrder): Promise<bigint>;
     updateLogoRequestStatus(id: bigint, status: string): Promise<boolean>;
     updateOrderStatus(id: bigint, status: string): Promise<boolean>;
+    getAllOrderFinancials(): Promise<Array<[bigint, OrderFinancials]>>;
+    getOrderFinancials(id: bigint): Promise<OrderFinancials | null>;
+    updateOrderFinancials(id: bigint, financials: OrderFinancials): Promise<boolean>;
+    deleteOrder(id: bigint): Promise<boolean>;
+    getExpenses(): Promise<Array<Expense>>;
+    addExpense(form: NewExpense): Promise<bigint>;
 }
 import type { ExternalBlob as _ExternalBlob, Video as _Video, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -378,6 +409,30 @@ export class Backend implements backendInterface {
             const result = await this.actor.updateOrderStatus(arg0, arg1);
             return result;
         }
+    }
+    async getAllOrderFinancials(): Promise<Array<[bigint, OrderFinancials]>> {
+        const result = await this.actor.getAllOrderFinancials();
+        return result;
+    }
+    async getOrderFinancials(id: bigint): Promise<OrderFinancials | null> {
+        const result = await this.actor.getOrderFinancials(id);
+        return result.length > 0 ? result[0] : null;
+    }
+    async updateOrderFinancials(id: bigint, financials: OrderFinancials): Promise<boolean> {
+        const result = await this.actor.updateOrderFinancials(id, financials);
+        return result;
+    }
+    async deleteOrder(id: bigint): Promise<boolean> {
+        const result = await this.actor.deleteOrder(id);
+        return result;
+    }
+    async getExpenses(): Promise<Array<Expense>> {
+        const result = await this.actor.getExpenses();
+        return result;
+    }
+    async addExpense(form: NewExpense): Promise<bigint> {
+        const result = await this.actor.addExpense(form);
+        return result;
     }
 }
 async function from_candid_ExternalBlob_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {

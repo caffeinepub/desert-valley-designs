@@ -70,6 +70,32 @@ export const NewOrder = IDL.Record({
   'phone' : IDL.Text,
 });
 
+export const OrderFinancials = IDL.Record({
+  'totalPaid' : IDL.Int,
+  'depositPaid' : IDL.Int,
+  'paymentMethod' : IDL.Text,
+  'dateDelivered' : IDL.Int,
+  'costPerShirt' : IDL.Int,
+  'pricePerShirt' : IDL.Int,
+  'designNotes' : IDL.Text,
+});
+export const Expense = IDL.Record({
+  'id' : IDL.Nat,
+  'date' : IDL.Int,
+  'category' : IDL.Text,
+  'description' : IDL.Text,
+  'amount' : IDL.Int,
+  'vendor' : IDL.Text,
+  'createdAt' : IDL.Int,
+});
+export const NewExpense = IDL.Record({
+  'date' : IDL.Int,
+  'category' : IDL.Text,
+  'description' : IDL.Text,
+  'amount' : IDL.Int,
+  'vendor' : IDL.Text,
+});
+
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
       [IDL.Vec(IDL.Nat8)],
@@ -108,6 +134,12 @@ export const idlService = IDL.Service({
   'getVideoLibrary' : IDL.Func([], [IDL.Vec(Video)], ['query']),
   'submitLogoRequest' : IDL.Func([NewLogoRequest], [IDL.Nat], []),
   'submitOrder' : IDL.Func([NewOrder], [IDL.Nat], []),
+  'addExpense' : IDL.Func([NewExpense], [IDL.Nat], []),
+  'deleteOrder' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'getAllOrderFinancials' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Nat, OrderFinancials))], ['query']),
+  'getExpenses' : IDL.Func([], [IDL.Vec(Expense)], ['query']),
+  'getOrderFinancials' : IDL.Func([IDL.Nat], [IDL.Opt(OrderFinancials)], ['query']),
+  'updateOrderFinancials' : IDL.Func([IDL.Nat, OrderFinancials], [IDL.Bool], []),
   'updateLogoRequestStatus' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
   'updateOrderStatus' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
 });
@@ -177,6 +209,31 @@ export const idlFactory = ({ IDL }) => {
     'phone' : IDL.Text,
   });
   
+  const OrderFinancials = IDL.Record({
+    'totalPaid' : IDL.Int,
+    'depositPaid' : IDL.Int,
+    'paymentMethod' : IDL.Text,
+    'dateDelivered' : IDL.Int,
+    'costPerShirt' : IDL.Int,
+    'pricePerShirt' : IDL.Int,
+    'designNotes' : IDL.Text,
+  });
+  const Expense = IDL.Record({
+    'id' : IDL.Nat,
+    'date' : IDL.Int,
+    'category' : IDL.Text,
+    'description' : IDL.Text,
+    'amount' : IDL.Int,
+    'vendor' : IDL.Text,
+    'createdAt' : IDL.Int,
+  });
+  const NewExpense = IDL.Record({
+    'date' : IDL.Int,
+    'category' : IDL.Text,
+    'description' : IDL.Text,
+    'amount' : IDL.Int,
+    'vendor' : IDL.Text,
+  });
   return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
         [IDL.Vec(IDL.Nat8)],
@@ -215,6 +272,12 @@ export const idlFactory = ({ IDL }) => {
     'getVideoLibrary' : IDL.Func([], [IDL.Vec(Video)], ['query']),
     'submitLogoRequest' : IDL.Func([NewLogoRequest], [IDL.Nat], []),
     'submitOrder' : IDL.Func([NewOrder], [IDL.Nat], []),
+    'addExpense' : IDL.Func([NewExpense], [IDL.Nat], []),
+    'deleteOrder' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'getAllOrderFinancials' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Nat, OrderFinancials))], ['query']),
+    'getExpenses' : IDL.Func([], [IDL.Vec(Expense)], ['query']),
+    'getOrderFinancials' : IDL.Func([IDL.Nat], [IDL.Opt(OrderFinancials)], ['query']),
+    'updateOrderFinancials' : IDL.Func([IDL.Nat, OrderFinancials], [IDL.Bool], []),
     'updateLogoRequestStatus' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'updateOrderStatus' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
   });
