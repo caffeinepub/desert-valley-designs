@@ -208,7 +208,7 @@ actor {
       phone = form.phone;
       cartItems = form.cartItems;
       notes = form.notes;
-      status = "Pending";
+      status = "New";
       submittedAt = Time.now();
     };
     ordersV2.add(nextOrderId, o);

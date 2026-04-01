@@ -265,7 +265,9 @@ export default function AdminDashboard() {
         (actor as any).getAllOrderFinancials(),
       ]);
       setOrders(
-        [...data].sort((a, b) => Number(b.submittedAt - a.submittedAt)),
+        [...data]
+          .map((o) => (o.status === "Pending" ? { ...o, status: "New" } : o))
+          .sort((a, b) => Number(b.submittedAt - a.submittedAt)),
       );
       const map = new Map<string, OrderFinancials>();
       for (const [id, f] of financialsData) {
@@ -289,7 +291,9 @@ export default function AdminDashboard() {
     try {
       const data = await actor.getLogoRequests();
       setLogoRequests(
-        [...data].sort((a, b) => Number(b.submittedAt - a.submittedAt)),
+        [...data]
+          .map((o) => (o.status === "Pending" ? { ...o, status: "New" } : o))
+          .sort((a, b) => Number(b.submittedAt - a.submittedAt)),
       );
     } finally {
       setLogoLoading(false);
