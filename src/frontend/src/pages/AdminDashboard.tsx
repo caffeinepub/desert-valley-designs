@@ -14,6 +14,7 @@ import {
   LogOut,
   RefreshCw,
   Search,
+  Trash2,
   TrendingUp,
   X,
 } from "lucide-react";
@@ -195,6 +196,8 @@ export default function AdminDashboard() {
   >(new Map());
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [updatingOrder, setUpdatingOrder] = useState<bigint | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<bigint | null>(null);
+  const [deletingOrder, setDeletingOrder] = useState<bigint | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
   // Per-order financials form state
@@ -334,6 +337,18 @@ export default function AdminDashboard() {
       );
     } finally {
       setUpdatingOrder(null);
+    }
+  };
+
+  const handleDeleteOrder = async (id: bigint) => {
+    if (!actor) return;
+    setDeletingOrder(id);
+    try {
+      await (actor as any).deleteOrder(id);
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+    } finally {
+      setDeletingOrder(null);
+      setDeleteConfirm(null);
     }
   };
 
@@ -1039,6 +1054,29 @@ export default function AdminDashboard() {
                             >
                               {isExpanded ? "Hide" : "Details"}
                             </button>
+                            {deletingOrder === order.id ? (
+                              <Loader2
+                                size={16}
+                                className="animate-spin"
+                                style={{ color: "#dc2626" }}
+                              />
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setDeleteConfirm(order.id)}
+                                className="flex items-center justify-center px-2 py-1.5 border hover:opacity-80 transition-opacity"
+                                style={{
+                                  borderColor: "#dc2626",
+                                  color: "#dc2626",
+                                  borderRadius: "9999px",
+                                }}
+                                data-ocid="admin.delete_button"
+                                title="Delete order"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+
                             {updatingOrder === order.id ? (
                               <Loader2
                                 size={16}
@@ -2230,6 +2268,69 @@ export default function AdminDashboard() {
                 </>
               );
             })()}
+          </div>
+        )}
+        {/* Delete Confirmation Dialog */}
+        {deleteConfirm !== null && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+            data-ocid="admin.dialog"
+          >
+            <div
+              className="rounded-2xl p-8 max-w-sm w-full mx-4 border-4"
+              style={{ backgroundColor: "#fff", borderColor: "#dc2626" }}
+            >
+              <h2
+                className="font-black text-2xl uppercase tracking-wider mb-3"
+                style={{
+                  color: "#dc2626",
+                  fontFamily: "Bebas Neue, sans-serif",
+                }}
+              >
+                Delete Order?
+              </h2>
+              <p
+                className="text-sm font-semibold mb-6"
+                style={{ color: "#444" }}
+              >
+                This order will be permanently deleted and cannot be recovered.
+                Are you sure?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirm(null)}
+                  className="flex-1 font-bold uppercase tracking-wider text-sm px-4 py-2.5 border-2 hover:opacity-80 transition-opacity"
+                  style={{
+                    borderColor: "#888",
+                    color: "#444",
+                    borderRadius: "9999px",
+                  }}
+                  data-ocid="admin.cancel_button"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteOrder(deleteConfirm)}
+                  disabled={deletingOrder !== null}
+                  className="flex-1 font-bold uppercase tracking-wider text-sm px-4 py-2.5 border-2 hover:opacity-80 transition-opacity flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: "#dc2626",
+                    borderColor: "#dc2626",
+                    color: "#fff",
+                    borderRadius: "9999px",
+                  }}
+                  data-ocid="admin.confirm_button"
+                >
+                  {deletingOrder !== null ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : null}
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>

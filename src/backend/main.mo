@@ -283,6 +283,12 @@ actor {
     currentId;
   };
 
+  public shared func deleteOrder(id : Nat) : async Bool {
+    ordersV2.remove(id);
+    orderFinancialsMap.remove(id);
+    true;
+  };
+
   // Auth endpoint
 
   public query func adminLogin(username : Text, password : Text) : async Bool {
