@@ -1219,6 +1219,11 @@ export default function Order() {
 
           {cart.length > 0 && orderId === null && (
             <div className="border-t-4 border-[#111] bg-white px-6 py-4 space-y-2 shrink-0">
+              {isFetching && (
+                <p className="text-center text-sm text-orange-600 font-semibold mb-2 animate-pulse">
+                  Connecting to server…
+                </p>
+              )}
               {orderError && (
                 <p className="text-sm font-bold text-red-600 text-center">
                   {orderError}

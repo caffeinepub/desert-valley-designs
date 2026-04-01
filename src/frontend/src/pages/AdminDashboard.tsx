@@ -195,6 +195,7 @@ export default function AdminDashboard() {
     Map<string, OrderFinancials>
   >(new Map());
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
   const [updatingOrder, setUpdatingOrder] = useState<bigint | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<bigint | null>(null);
   const [deletingOrder, setDeletingOrder] = useState<bigint | null>(null);
@@ -283,6 +284,14 @@ export default function AdminDashboard() {
         fMap.set(id.toString(), financialsToForm(f));
       }
       setFormsMap(fMap);
+      setOrdersError(null);
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
+      setOrdersError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load orders. Please refresh.",
+      );
     } finally {
       setOrdersLoading(false);
     }
@@ -298,6 +307,8 @@ export default function AdminDashboard() {
           .map((o) => (o.status === "Pending" ? { ...o, status: "New" } : o))
           .sort((a, b) => Number(b.submittedAt - a.submittedAt)),
       );
+    } catch (err) {
+      console.error("Failed to fetch logo requests:", err);
     } finally {
       setLogoLoading(false);
     }
@@ -309,6 +320,8 @@ export default function AdminDashboard() {
     try {
       const data = await (actor as any).getExpenses();
       setExpenses([...data].sort((a, b) => Number(b.date - a.date)));
+    } catch (err) {
+      console.error("Failed to fetch expenses:", err);
     } finally {
       setExpensesLoading(false);
     }
@@ -321,6 +334,15 @@ export default function AdminDashboard() {
       fetchExpenses();
     }
   }, [actor, isFetching, fetchOrders, fetchLogoRequests, fetchExpenses]);
+
+  // Auto-poll orders every 30 seconds
+  useEffect(() => {
+    if (!actor) return;
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [actor, fetchOrders]);
 
   const logout = () => {
     localStorage.removeItem(ADMIN_KEY);
@@ -929,7 +951,23 @@ export default function AdminDashboard() {
                 </h2>
               </div>
 
-              {ordersLoading || isFetching ? (
+              {ordersError && (
+                <div
+                  className="mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-700 font-bold flex items-center gap-3"
+                  data-ocid="admin.error_state"
+                >
+                  <span>⚠ {ordersError}</span>
+                  <button
+                    type="button"
+                    onClick={fetchOrders}
+                    className="ml-auto px-3 py-1 bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors"
+                    data-ocid="admin.secondary_button"
+                  >
+                    ↻ Retry
+                  </button>
+                </div>
+              )}
+              {ordersLoading ? (
                 <div
                   className="flex items-center justify-center py-20"
                   data-ocid="admin.loading_state"
